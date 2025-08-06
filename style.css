@@ -1,0 +1,95 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+header{
+    display: flex;
+    justify-content: center;
+    
+}
+
+#imagem-lpp{
+  width: 300px;
+  padding: 30px;
+}
+
+body{
+  margin: 0;
+  background-color: #f0f0f0;
+}
+
+main{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(60vh - 80px); /* ajusta altura tirando o header */
+  padding-top: 20px;
+}
+
+
+.container{
+    background-color: #0052a3;
+  padding: 100px 55px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 480px;
+}
+
+form{
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+#texto1{
+  margin-bottom: 30px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 28px;
+  color: #f0f0f0;
+
+}
+
+input, select, textarea {
+  width: 100%;
+    padding: 15px;
+    border: 2px solid #003d7a;
+    border-radius: 8px;
+    background-color: white;
+    color: #0056b3;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-family: 'Exo 2', sans-serif;
+}
+
+button{
+  
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 0 #004499, 0 10px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+
+}
+
+p{
+  color: #f0f0f0;
+  font-family: 'Exo 2', sans-serif;
+  
+}
+
+
+
+
