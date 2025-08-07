@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Chamados em Aberto</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    h2 {
+      color: #004080;
+    }
+    .chamado {
+      background-color: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Chamados em Aberto</h2>
+  <div id="listaChamados"></div>
+
+  <script>
+  fetch('http://localhost:3000/api/chamados')
+    .then(response => response.json())
+    .then(chamados => {
+      const lista = document.getElementById('listaChamados');
+      
+      if (chamados.length === 0) {
+        lista.innerHTML = "<p>Nenhum chamado encontrado.</p>";
+      } else {
+        chamados.forEach((chamado) => {
+          const div = document.createElement('div');
+          div.classList.add('chamado');
+          div.innerHTML = `
+            <strong>Nome:</strong> ${chamado.nome}<br>
+            <strong>Setor:</strong> ${chamado.setor}<br>
+            <strong>Tipo:</strong> ${chamado.prioridade}<br>
+            <strong>Descrição:</strong> ${chamado.problema}<br>
+          `;
+          lista.appendChild(div);
+        });
+      }
+    })
+    .catch(error => {
+      console.error('Erro ao buscar chamados:', error);
+      lista.innerHTML = "<p>Erro ao carregar os chamados.</p>";
+    });
+</script>
+</body>
+</html>

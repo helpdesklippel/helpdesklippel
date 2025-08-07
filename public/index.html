@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamados LIPPEL</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+       <img id="imagem-lpp" src="img/lippel-removebg-preview.png" alt="imagem-lippel">
+    </header>
+    <main>
+        <section class="container">
+            <div id="form">
+              <h2 id="texto1">Abrir Chamado</h2>
+
+              <form id="formulario" >
+                <p>*Digite seu nome</p>
+                <input type="text" id="txtname" placeholder="Digite seu nome" required>
+
+                <select id="setor" required > 
+                    <option value="" disabled selected>Qual seu Setor?</option>
+                    <option value="PCP">PCP</option>
+                    <option value="ENGENHARIA">ENGENHARIA</option>
+                    <option value="COMERCIAL">COMERCIAL</option>
+                    <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+                    <option value="ALMOXARIFADO">ALMOXARIFADO</option>
+                    <option value="PROCESSOS">PROCESSOS</option>
+                </select>
+
+                <p>*Descreva o Problema</p>
+
+                <textarea id="problema" placeholder="Descreva o Problema" required> </textarea>
+
+                <select id="área" required>
+                    <option value="" disabled selected>Tipo de Solicitação</option>
+                    <option value="SUPORTE TÉCNICO">SUPORTE TÉCNICO</option>
+                    <option value="DESENVOLVIMENTO">DESENVOLVIMENTO</option>
+                </select>
+
+                <button type="button" onclick="enviarChamado()">Enviar</button>
+
+                <button onclick="window.location.href='chamados.html'" style="margin-top: 10px;">Ver Chamados em Aberto</button>
+
+              </form>  
+              
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body> 
+</html>

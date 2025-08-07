@@ -1,6 +1,7 @@
 const express = require('express');
+const path = require('path');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware para permitir JSON
 app.use(express.json());
@@ -12,6 +13,9 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
+
+// Servir arquivos estáticos da pasta /public
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Configurações do Supabase
 const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
@@ -36,7 +40,7 @@ app.post('/api/chamados', async (req, res) => {
         'Prefer': 'return=representation'
       },
       body: JSON.stringify({
-        id,  // Enviando o ID explicitamente
+        id,
         nome,
         setor,
         problema,
@@ -85,5 +89,5 @@ app.get('/api/chamados', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
