@@ -8,6 +8,7 @@
       font-family: Arial;
       background-color: #f4f4f4;
       padding: 20px;
+      margin: 0;
     }
     h2 {
       color: #004080;
@@ -51,14 +52,17 @@
   <a href="index.html" class="voltar">← Voltar para Formulário</a>
   <h2>Chamados em Aberto</h2>
   <button class="atualizar" onclick="carregarChamados()">🔄 Atualizar Lista</button>
-  <div id="listaChamados"></div>
+  <div id="listaChamados">Carregando...</div>
   
   <script>
+    // Definir a variável globalmente
+    let listaElemento = document.getElementById('listaChamados');
+    
     function carregarChamados() {
       console.log('Carregando chamados...');
       
-      // Definir a variável lista ANTES do fetch
-      const lista = document.getElementById('listaChamados');
+      // Mostrar mensagem de carregamento
+      listaElemento.innerHTML = "<p>Carregando chamados...</p>";
       
       // URL CORRIGIDA - usando o Render
       fetch('https://helpdesklippel-1.onrender.com/api/chamados')
@@ -70,9 +74,9 @@
           console.log('Chamados recebidos:', chamados);
           
           if (chamados.length === 0) {
-            lista.innerHTML = "<p>Nenhum chamado encontrado.</p>";
+            listaElemento.innerHTML = "<p>Nenhum chamado encontrado.</p>";
           } else {
-            lista.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
+            listaElemento.innerHTML = ''; // Limpa a lista
             
             chamados.forEach((chamado) => {
               const div = document.createElement('div');
@@ -84,14 +88,13 @@
                 <strong>Descrição:</strong> ${chamado.problema}<br>
                 <small><em>Data: ${new Date(chamado.created_at).toLocaleString()}</em></small>
               `;
-              lista.appendChild(div);
+              listaElemento.appendChild(div);
             });
           }
         })
         .catch(error => {
           console.error('Erro ao buscar chamados:', error);
-          // Agora a variável lista existe aqui também
-          lista.innerHTML = "<p>Erro ao carregar os chamados.</p>";
+          listaElemento.innerHTML = "<p>Erro ao carregar os chamados. Tente novamente.</p>";
         });
     }
     
