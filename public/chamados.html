@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -20,38 +19,69 @@
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
+    .atualizar {
+      background-color: #004080;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .atualizar:hover {
+      background-color: #003060;
+    }
   </style>
 </head>
 <body>
   <h2>Chamados em Aberto</h2>
+  <button class="atualizar" onclick="carregarChamados()">🔄 Atualizar Lista</button>
   <div id="listaChamados"></div>
-
+  
   <script>
-  fetch('http://localhost:3000/api/chamados')
-    .then(response => response.json())
-    .then(chamados => {
-      const lista = document.getElementById('listaChamados');
+    function carregarChamados() {
+      console.log('Carregando chamados...');
       
-      if (chamados.length === 0) {
-        lista.innerHTML = "<p>Nenhum chamado encontrado.</p>";
-      } else {
-        chamados.forEach((chamado) => {
-          const div = document.createElement('div');
-          div.classList.add('chamado');
-          div.innerHTML = `
-            <strong>Nome:</strong> ${chamado.nome}<br>
-            <strong>Setor:</strong> ${chamado.setor}<br>
-            <strong>Tipo:</strong> ${chamado.prioridade}<br>
-            <strong>Descrição:</strong> ${chamado.problema}<br>
-          `;
-          lista.appendChild(div);
+      // URL CORRIGIDA - usando o Render
+      fetch('https://helpdesklippel-1.onrender.com/api/chamados')
+        .then(response => {
+          console.log('Status:', response.status);
+          return response.json();
+        })
+        .then(chamados => {
+          console.log('Chamados recebidos:', chamados);
+          const lista = document.getElementById('listaChamados');
+          
+          if (chamados.length === 0) {
+            lista.innerHTML = "<p>Nenhum chamado encontrado.</p>";
+          } else {
+            lista.innerHTML = ''; // Limpa a lista antes de adicionar novos itens
+            
+            chamados.forEach((chamado) => {
+              const div = document.createElement('div');
+              div.classList.add('chamado');
+              div.innerHTML = `
+                <strong>Nome:</strong> ${chamado.nome}<br>
+                <strong>Setor:</strong> ${chamado.setor}<br>
+                <strong>Prioridade:</strong> ${chamado.prioridade}<br>
+                <strong>Descrição:</strong> ${chamado.problema}<br>
+                <small><em>Data: ${new Date(chamado.created_at).toLocaleString()}</em></small>
+              `;
+              lista.appendChild(div);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Erro ao buscar chamados:', error);
+          document.getElementById('listaChamados').innerHTML = "<p>Erro ao carregar os chamados.</p>";
         });
-      }
-    })
-    .catch(error => {
-      console.error('Erro ao buscar chamados:', error);
-      lista.innerHTML = "<p>Erro ao carregar os chamados.</p>";
-    });
-</script>
+    }
+    
+    // Carregar chamados quando a página abrir
+    carregarChamados();
+    
+    // Atualizar a cada 30 segundos
+    setInterval(carregarChamados, 30000);
+  </script>
 </body>
 </html>
