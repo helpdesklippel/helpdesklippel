@@ -31,9 +31,24 @@
     .atualizar:hover {
       background-color: #003060;
     }
+    .voltar {
+      background-color: #666;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .voltar:hover {
+      background-color: #555;
+    }
   </style>
 </head>
 <body>
+  <a href="index.html" class="voltar">← Voltar para Formulário</a>
   <h2>Chamados em Aberto</h2>
   <button class="atualizar" onclick="carregarChamados()">🔄 Atualizar Lista</button>
   <div id="listaChamados"></div>
