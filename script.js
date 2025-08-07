@@ -16,7 +16,7 @@ function enviarChamado() {
         prioridade: area
     };
 
-    fetch('http://localhost:3000/api/chamados', {
+    fetch('https://helpdesklippel-1.onrender.com/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
