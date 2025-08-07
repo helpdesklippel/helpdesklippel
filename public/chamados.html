@@ -57,6 +57,9 @@
     function carregarChamados() {
       console.log('Carregando chamados...');
       
+      // Definir a variável lista ANTES do fetch
+      const lista = document.getElementById('listaChamados');
+      
       // URL CORRIGIDA - usando o Render
       fetch('https://helpdesklippel-1.onrender.com/api/chamados')
         .then(response => {
@@ -65,7 +68,6 @@
         })
         .then(chamados => {
           console.log('Chamados recebidos:', chamados);
-          const lista = document.getElementById('listaChamados');
           
           if (chamados.length === 0) {
             lista.innerHTML = "<p>Nenhum chamado encontrado.</p>";
@@ -88,7 +90,8 @@
         })
         .catch(error => {
           console.error('Erro ao buscar chamados:', error);
-          document.getElementById('listaChamados').innerHTML = "<p>Erro ao carregar os chamados.</p>";
+          // Agora a variável lista existe aqui também
+          lista.innerHTML = "<p>Erro ao carregar os chamados.</p>";
         });
     }
     
