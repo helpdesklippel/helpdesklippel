@@ -1,194 +1,107 @@
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware para JSON
-app.use(express.json());
-
-// Middleware CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(204).send();
-  }
-  next();
-});
-
-// Rota raiz
-app.get('/', (req, res) => {
-  res.send('<h1>API de Chamados LIPPEL</h1><p>Status: Online</p>');
-});
-
-// Rota de teste
-app.get('/api/test', (req, res) => {
-  console.log('🔍 Rota /api/test acessada');
-  res.json({ 
-    message: '✅ Servidor está funcionando!',
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    url: req.url,
-    env: {
-      SUPABASE_URL: process.env.SUPABASE_URL ? '✅ Configurado' : '❌ Não configurado',
-      SUPABASE_KEY: process.env.SUPABASE_KEY ? '✅ Configurado' : '❌ Não configurado'
-    }
-  });
-});
-
-// Rota GET para buscar chamados
-app.get('/api/chamados', async (req, res) => {
-  try {
-    console.log('🔍 Buscando chamados...');
+async function enviarChamado() {
+    console.log('=== INÍCIO DO ENVIO DE CHAMADO ===');
+    console.log('Timestamp:', new Date().toISOString());
     
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
+    const nome = document.getElementById('txtname').value;
+    const setorSelect = document.getElementById('setor');
+    const setorId = setorSelect.value;
+    const setorTexto = setorSelect.options[setorSelect.selectedIndex].text;
+    const problema = document.getElementById('problema').value;
+    const area = document.getElementById('área').value;
     
-    if (!supabaseUrl || !supabaseKey) {
-      return res.status(500).json({ error: '❌ Variáveis de ambiente não configuradas' });
+    console.log('📋 Dados do formulário:');
+    console.log('  nome:', nome);
+    console.log('  setorId:', setorId);
+    console.log('  setorTexto:', setorTexto);
+    console.log('  problema:', problema);
+    console.log('  area:', area);
+    
+    if (!nome || !setorId || !problema || !area) {
+      console.error('❌ Campos obrigatórios não preenchidos');
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
     }
     
-    const response = await fetch(`${supabaseUrl}/rest/v1/Chamados?select=*,setores(nome),status_chamado(nome)`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`
-      }
-    });
-    
-    const data = await response.json();
-    console.log('📊 Resposta do Supabase:', response.status, data);
-    
-    if (!response.ok) {
-      return res.status(500).json({ 
-        error: '❌ Erro ao buscar chamados', 
-        details: data,
-        status: response.status 
-      });
-    }
-    
-    res.json(data);
-  } catch (err) {
-    console.error('❌ Erro ao buscar chamados:', err);
-    res.status(500).json({ error: 'Erro no servidor', details: err.message });
-  }
-});
-
-// Rota POST para salvar chamado
-app.post('/api/chamados', async (req, res) => {
-  try {
-    console.log('📝 === Nova requisição POST /api/chamados ===');
-    console.log('📋 Headers:', req.headers);
-    console.log('📋 Body:', req.body);
-    
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
-    
-    console.log('🔑 Variáveis de ambiente:');
-    console.log('SUPABASE_URL:', supabaseUrl ? '✅ OK' : '❌ NÃO DEFINIDO');
-    console.log('SUPABASE_KEY:', supabaseKey ? '✅ OK' : '❌ NÃO DEFINIDO');
-    
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('❌ Variáveis de ambiente não configuradas');
-      return res.status(500).json({ 
-        error: '❌ Configuração do servidor incompleta',
-        details: 'Variáveis de ambiente não configuradas'
-      });
-    }
-    
-    const { nome, setor, problema, prioridade, setor_id, status_id, interferencia } = req.body;
-    
-    console.log('📝 Dados do chamado:', { nome, setor, setor_id, status_id });
-    
-    // Garantir que temos o setor_id
-    if (!setor_id) {
-      return res.status(400).json({ 
-        error: '❌ setor_id é obrigatório',
-        details: 'O campo setor_id é obrigatório para criar um chamado'
-      });
-    }
-    
-    const chamadoParaInserir = {
-      nome,
-      setor,
-      problema,
-      prioridade,
-      setor_id: parseInt(setor_id),
-      created_at: new Date().toISOString()
+    const chamado = {
+        nome: nome,
+        setor: setorTexto,
+        problema: problema,
+        prioridade: area,
+        setor_id: parseInt(setorId),
+        status_id: 1, // Status inicial: "Recebido"
+        interferencia: 'nenhuma' // Valor padrão
     };
     
-    // Adicionar campos opcionais se existirem
-    if (status_id) chamadoParaInserir.status_id = status_id;
-    if (interferencia) chamadoParaInserir.interferencia = interferencia;
+    console.log('💾 Chamado a ser enviado:', JSON.stringify(chamado, null, 2));
     
-    console.log('💾 Chamado para inserir:', chamadoParaInserir);
-    
-    const response = await fetch(`${supabaseUrl}/rest/v1/Chamados`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(chamadoParaInserir)
-    });
-    
-    const data = await response.json();
-    console.log('📤 Resposta do Supabase:', response.status, data);
-    
-    if (!response.ok) {
-      console.error('❌ Erro do Supabase:', data);
-      
-      // Tratar erros específicos de RLS
-      if (data.code === '42501') {
-        return res.status(403).json({ 
-          error: '❌ Erro de permissão',
-          details: 'Você não tem permissão para criar chamados. Verifique suas permissões de usuário.',
-          supabase_error: data
+    try {
+        // Verificar se o supabaseClient está disponível
+        if (typeof window.supabaseClient === 'undefined') {
+            throw new Error('Supabase client não está disponível. Recarregue a página.');
+        }
+        
+        console.log('🔍 Verificando autenticação...');
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
+        
+        if (!user) {
+            console.error('❌ Usuário não autenticado');
+            alert('Você precisa estar logado para criar um chamado.');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        console.log('✅ Usuário autenticado:', user.email);
+        
+        // Obter token
+        console.log('🔑 Obtendo token de sessão...');
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const token = session?.access_token;
+        
+        if (!token) {
+            console.error('❌ Token não disponível');
+            alert('Sessão expirada. Faça login novamente.');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        console.log('✅ Token obtido, tamanho:', token?.length || 0);
+        
+        // Enviar requisição
+        console.log('🌐 Enviando requisição para o backend...');
+        console.log('URL: https://helpdesklippel-1.onrender.com/api/chamados');
+        
+        const response = await fetch('https://helpdesklippel-1.onrender.com/api/chamados', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(chamado)
         });
-      }
-      
-      return res.status(500).json({ 
-        error: '❌ Erro ao salvar chamado', 
-        details: data,
-        status: response.status 
-      });
+        
+        console.log('📊 Status da resposta:', response.status);
+        console.log('📋 Headers da resposta:', Object.fromEntries(response.headers.entries()));
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('❌ Erro na resposta:', JSON.stringify(errorData, null, 2));
+            throw new Error(errorData.error || 'Erro ao enviar chamado');
+        }
+        
+        const data = await response.json();
+        console.log('✅ Resposta do servidor:', JSON.stringify(data, null, 2));
+        
+        alert('Chamado enviado com sucesso!');
+        document.getElementById('formulario').reset();
+        
+        // Opcional: redirecionar para a lista de chamados
+        // window.location.href = 'chamados.html';
+        
+    } catch (error) {
+        console.error('❌ Erro ao enviar chamado:', error);
+        console.error('Stack:', error.stack);
+        alert('Erro ao enviar chamado: ' + error.message);
     }
     
-    res.status(201).json({ 
-      message: '✅ Chamado salvo com sucesso!', 
-      data,
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (err) {
-    console.error('❌ === ERRO NO SERVIDOR ===');
-    console.error('❌ Mensagem:', err.message);
-    console.error('❌ Stack:', err.stack);
-    
-    res.status(500).json({ 
-      error: '❌ Erro no servidor', 
-      details: err.message,
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 === SERVIDOR INICIADO ===`);
-  console.log(`🌐 Porta: ${PORT}`);
-  console.log(`🔗 URL: http://localhost:${PORT}`);
-  console.log('🔑 Variáveis de ambiente:');
-  console.log(`SUPABASE_URL: ${process.env.SUPABASE_URL ? '✅ OK' : '❌ NÃO DEFINIDO'}`);
-  console.log(`SUPABASE_KEY: ${process.env.SUPABASE_KEY ? '✅ OK' : '❌ NÃO DEFINIDO'}`);
-  console.log('🛣️  Rotas disponíveis:');
-  console.log(`   GET  /           - Página de status`);
-  console.log(`   GET  /api/test   - Teste do servidor`);
-  console.log(`   GET  /api/chamados - Listar chamados`);
-  console.log(`   POST /api/chamados - Criar chamado`);
-  console.log('====================================');
-});
+    console.log('=== FIM DO ENVIO DE CHAMADO ===');
+}
