@@ -109,7 +109,7 @@
 <body>
   <div id="userInfo" class="user-info" style="display: none;">
     <div>
-      <strong>Usuário:</strong> <span id="userEmail"></span><br>
+      <strong>Usuário:</strong> <span id="userEmail"></span>
       <strong>Setor:</strong> <span id="userSetor"></span>
       <span id="userAdmin" style="display: none; margin-left: 10px; background-color: #4caf50; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">ADMIN</span>
     </div>
@@ -135,145 +135,155 @@
     
     // Verificar se usuário está logado
     async function verificarAutenticacao() {
-        try {
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            
-            if (error || !user) {
-                console.log('Usuário não autenticado:', error?.message);
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            usuarioAtual = user;
-            
-            // Buscar dados adicionais do usuário
-            const { data: usuario, error: userError } = await supabaseClient
-                .from('usuarios')
-                .select('setor_id, eh_admin, setores(nome)')
-                .eq('id', user.id)
-                .single();
-                
-            if (userError) {
-                console.error('Erro ao buscar dados do usuário:', userError);
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            dadosUsuario = usuario;
-            
-            // Exibir informações do usuário
-            document.getElementById('userInfo').style.display = 'flex';
-            document.getElementById('userEmail').textContent = user.email;
-            document.getElementById('userSetor').textContent = usuario.setores?.nome || 'Não definido';
-            
-            if (usuario.eh_admin) {
-                document.getElementById('userAdmin').style.display = 'inline-block';
-            }
-            
-            // Carregar chamados
-            carregarChamados();
-        } catch (error) {
-            console.error('Erro na verificação de autenticação:', error);
-            window.location.href = 'login.html';
+      try {
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
+        
+        if (error || !user) {
+          console.log('Usuário não autenticado:', error?.message);
+          window.location.href = 'login.html';
+          return;
         }
+        
+        usuarioAtual = user;
+        
+        // Buscar dados adicionais do usuário
+        const { data: usuario, error: userError } = await supabaseClient
+          .from('usuarios')
+          .select('setor_id, eh_admin, setores(nome)')
+          .eq('id', user.id)
+          .single();
+          
+        if (userError) {
+          console.error('Erro ao buscar dados do usuário:', userError);
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        dadosUsuario = usuario;
+        
+        // Exibir informações do usuário
+        const userInfoDiv = document.getElementById('userInfo');
+        const userEmailSpan = document.getElementById('userEmail');
+        const userSetorSpan = document.getElementById('userSetor');
+        const userAdminSpan = document.getElementById('userAdmin');
+        
+        if (userInfoDiv && userEmailSpan && userSetorSpan && userAdminSpan) {
+          userInfoDiv.style.display = 'flex';
+          userEmailSpan.textContent = user.email;
+          userSetorSpan.textContent = usuario.setores?.nome || 'Não definido';
+          
+          if (usuario.eh_admin) {
+            userAdminSpan.style.display = 'inline-block';
+          }
+        }
+        
+        // Carregar chamados
+        carregarChamados();
+      } catch (error) {
+        console.error('Erro na verificação de autenticação:', error);
+        window.location.href = 'login.html';
+      }
     }
     
     async function carregarChamados() {
-        console.log('Carregando chamados...');
-        listaElemento.innerHTML = "<p>Carregando chamados...</p>";
+      console.log('Carregando chamados...');
+      listaElemento.innerHTML = "<p>Carregando chamados...</p>";
+      
+      try {
+        let query = supabaseClient
+          .from('Chamados')
+          .select(`
+            *,
+            setores (nome),
+            status_chamado (nome)
+          `)
+          .order('created_at', { ascending: false });
         
-        try {
-            let query = supabaseClient
-                .from('Chamados')
-                .select(`
-                    *,
-                    setores (nome),
-                    status_chamado (nome)
-                `)
-                .order('created_at', { ascending: false });
-            
-            // Se não for admin, filtrar por setor
-            if (!dadosUsuario.eh_admin) {
-                query = query.eq('setor_id', dadosUsuario.setor_id);
-            }
-            
-            const { data: chamados, error } = await query;
-            
-            if (error) {
-                console.error('Erro ao buscar chamados:', error);
-                throw error;
-            }
-            
-            console.log('Chamados encontrados:', chamados);
-            
-            if (chamados.length === 0) {
-                listaElemento.innerHTML = "<p>Nenhum chamado encontrado para o seu setor.</p>";
-            } else {
-                listaElemento.innerHTML = '';
-                chamados.forEach((chamado) => {
-                    const div = document.createElement('div');
-                    
-                    // Adicionar classe baseada na prioridade
-                    let classePrioridade = '';
-                    if (chamado.prioridade === 'alta') classePrioridade = 'alta';
-                    if (chamado.prioridade === 'urgente') classePrioridade = 'urgente';
-                    if (chamado.status_chamado?.nome === 'Concluído') classePrioridade += ' concluido';
-                    
-                    div.classList.add('chamado', classePrioridade);
-                    
-                    // Mapear prioridade
-                    const prioridadeMap = {
-                        'baixa': '<span class="prioridade-badge prioridade-baixa">Baixa</span>',
-                        'média': '<span class="prioridade-badge prioridade-media">Média</span>',
-                        'alta': '<span class="prioridade-badge prioridade-alta">Alta</span>',
-                        'urgente': '<span class="prioridade-badge prioridade-urgente">Urgente</span>'
-                    };
-                    
-                    // Mapear status
-                    const statusMap = {
-                        'Recebido': '<span class="status-badge status-recebido">Recebido</span>',
-                        'Em Andamento': '<span class="status-badge status-andamento">Em Andamento</span>',
-                        'Aguardando': '<span class="status-badge status-aguardando">Aguardando</span>',
-                        'Concluído': '<span class="status-badge status-concluido">Concluído</span>'
-                    };
-                    
-                    div.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                            <div>
-                                <strong>${chamado.nome}</strong>
-                                ${chamado.prioridade ? prioridadeMap[chamado.prioridade] || '' : ''}
-                                ${chamado.status_chamado?.nome ? statusMap[chamado.status_chamado.nome] || '' : ''}
-                            </div>
-                            <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
-                        </div>
-                        <p><strong>Setor:</strong> ${chamado.setores?.nome || 'Não definido'}</p>
-                        <p><strong>Descrição:</strong> ${chamado.problema}</p>
-                        ${chamado.interferencia ? `<p><strong>Interferência:</strong> ${chamado.interferencia}</p>` : ''}
-                    `;
-                    listaElemento.appendChild(div);
-                });
-            }
-        } catch (error) {
-            console.error('Erro ao carregar chamados:', error);
-            listaElemento.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
-            
-            // Se for erro de autenticação, redirecionar para login
-            if (error.message.includes('Sessão expirada') || error.message.includes('não autenticado')) {
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
-            }
+        // Se não for admin, filtrar por setor
+        if (!dadosUsuario.eh_admin) {
+          console.log('Filtrando por setor_id:', dadosUsuario.setor_id);
+          query = query.eq('setor_id', dadosUsuario.setor_id);
+        } else {
+          console.log('Usuário admin - mostrando todos os chamados');
         }
+        
+        const { data: chamados, error } = await query;
+        
+        if (error) {
+          console.error('Erro ao buscar chamados:', error);
+          throw error;
+        }
+        
+        console.log('Chamados encontrados:', chamados);
+        
+        if (chamados.length === 0) {
+          listaElemento.innerHTML = "<p>Nenhum chamado encontrado para o seu setor.</p>";
+        } else {
+          listaElemento.innerHTML = '';
+          chamados.forEach((chamado) => {
+            const div = document.createElement('div');
+            
+            // Adicionar classe baseada na prioridade
+            let classes = ['chamado'];
+            if (chamado.prioridade === 'alta') classes.push('alta');
+            if (chamado.prioridade === 'urgente') classes.push('urgente');
+            if (chamado.status_chamado?.nome === 'Concluído') classes.push('concluido');
+            
+            div.className = classes.join(' ');
+            
+            // Mapear prioridade
+            const prioridadeMap = {
+              'baixa': '<span class="prioridade-badge prioridade-baixa">Baixa</span>',
+              'média': '<span class="prioridade-badge prioridade-media">Média</span>',
+              'alta': '<span class="prioridade-badge prioridade-alta">Alta</span>',
+              'urgente': '<span class="prioridade-badge prioridade-urgente">Urgente</span>'
+            };
+            
+            // Mapear status
+            const statusMap = {
+              'Recebido': '<span class="status-badge status-recebido">Recebido</span>',
+              'Em Andamento': '<span class="status-badge status-andamento">Em Andamento</span>',
+              'Aguardando': '<span class="status-badge status-aguardando">Aguardando</span>',
+              'Concluído': '<span class="status-badge status-concluido">Concluído</span>'
+            };
+            
+            div.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <div>
+                  <strong>${chamado.nome}</strong>
+                  ${chamado.prioridade ? prioridadeMap[chamado.prioridade] || '' : ''}
+                  ${chamado.status_chamado?.nome ? statusMap[chamado.status_chamado.nome] || '' : ''}
+                </div>
+                <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
+              </div>
+              <p><strong>Setor:</strong> ${chamado.setores?.nome || 'Não definido'} (ID: ${chamado.setor_id})</p>
+              <p><strong>Descrição:</strong> ${chamado.problema}</p>
+              ${chamado.interferencia ? `<p><strong>Interferência:</strong> ${chamado.interferencia}</p>` : ''}
+            `;
+            listaElemento.appendChild(div);
+          });
+        }
+      } catch (error) {
+        console.error('Erro ao carregar chamados:', error);
+        listaElemento.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
+        
+        // Se for erro de autenticação, redirecionar para login
+        if (error.message.includes('Sessão expirada') || error.message.includes('não autenticado')) {
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+        }
+      }
     }
     
     async function logout() {
-        try {
-            await supabaseClient.auth.signOut();
-            window.location.href = 'login.html';
-        } catch (error) {
-            console.error('Erro ao fazer logout:', error);
-            window.location.href = 'login.html';
-        }
+      try {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'login.html';
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        window.location.href = 'login.html';
+      }
     }
     
     // Verificar autenticação ao carregar a página
@@ -281,9 +291,9 @@
     
     // Atualizar a cada 30 segundos (apenas se usuário estiver autenticado)
     setInterval(() => {
-        if (usuarioAtual && dadosUsuario) {
-            carregarChamados();
-        }
+      if (usuarioAtual && dadosUsuario) {
+        carregarChamados();
+      }
     }, 30000);
   </script>
 </body>
