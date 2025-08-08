@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Chamados LIPPEL</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+       <img id="imagem-lpp" src="img/lippel-removebg-preview.png" alt="imagem-lippel">
+    </header>
+    <main>
+        <section class="container">
+            <div id="form">
+              <h2 id="texto1">Cadastro de Usuário</h2>
+              <form id="cadastroForm">
+                <p>*Nome completo</p>
+                <input type="text" id="nome" placeholder="Digite seu nome" required>
+                <p>*E-mail</p>
+                <input type="email" id="email" placeholder="Digite seu e-mail" required>
+                <p>*Senha</p>
+                <input type="password" id="senha" placeholder="Digite sua senha" required>
+                <p>*Setor</p>
+                <select id="setor" required>
+                    <option value="" disabled selected>Selecione seu setor</option>
+                    <option value="1">PCP</option>
+                    <option value="2">ENGENHARIA</option>
+                    <option value="3">COMERCIAL</option>
+                    <option value="4">ADMINISTRATIVO</option>
+                    <option value="5">ALMOXARIFADO</option>
+                    <option value="6">PROCESSOS</option>
+                    <option value="7">TI</option>
+                </select>
+                <button type="submit" class="btn-enviar">Cadastrar</button>
+                <p style="color: #f0f0f0; text-align: center; margin-top: 20px;">
+                    Já tem conta? <a href="login.html" style="color: #fff; text-decoration: underline;">Faça login</a>
+                </p>
+              </form>
+            </div>
+        </section>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // SUAS CREDENCIAIS DO SUPABASE
+        const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+        
+        document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const setor = document.getElementById('setor').value;
+            
+            console.log('Iniciando cadastro...');
+            console.log('Dados:', { nome, email, setor });
+            
+            try {
+                // 1. Criar usuário no Supabase Auth
+                console.log('Criando usuário no Supabase Auth...');
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: senha,
+                    options: {
+                        data: {
+                            nome: nome,
+                            setor_id: parseInt(setor)
+                        }
+                    }
+                });
+                
+                if (error) {
+                    console.error('Erro no Supabase Auth:', error);
+                    throw error;
+                }
+                
+                console.log('Resposta do Supabase Auth:', data);
+                
+                if (data.user) {
+                    console.log('Usuário criado com ID:', data.user.id);
+                    
+                    // 2. Inserir manualmente na tabela usuarios
+                    try {
+                        console.log('Inserindo na tabela usuarios...');
+                        
+                        const { data: insertData, error: insertError } = await supabaseClient
+                            .from('usuarios')
+                            .insert([{
+                                id: data.user.id,
+                                nome: nome,
+                                email: email,
+                                setor_id: parseInt(setor)
+                            }]);
+                        
+                        if (insertError) {
+                            console.error('Erro ao inserir na tabela usuarios:', insertError);
+                            throw insertError;
+                        }
+                        
+                        console.log('Usuário inserido na tabela com sucesso:', insertData);
+                        
+                        alert('Cadastro realizado com sucesso! Verifique seu e-mail para confirmação.');
+                        window.location.href = 'login.html';
+                        
+                    } catch (insertErr) {
+                        console.error('Exceção na inserção manual:', insertErr);
+                        throw insertErr;
+                    }
+                } else {
+                    alert('Cadastro iniciado! Verifique seu e-mail.');
+                    window.location.href = 'login.html';
+                }
+                
+            } catch (error) {
+                console.error('Erro completo no processo:', error);
+                
+                // Mensagens de erro mais amigáveis
+                let mensagemErro = error.message;
+                
+                if (error.message.includes('already registered')) {
+                    mensagemErro = 'Este e-mail já está cadastrado. Tente fazer login.';
+                } else if (error.message.includes('invalid email')) {
+                    mensagemErro = 'E-mail inválido. Verifique o formato.';
+                } else if (error.message.includes('password')) {
+                    mensagemErro = 'A senha deve ter pelo menos 6 caracteres.';
+                } else if (error.message.includes('duplicate key')) {
+                    mensagemErro = 'Este e-mail já está em uso.';
+                }
+                
+                alert('Erro ao cadastrar: ' + mensagemErro);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -5,11 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chamados LIPPEL</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
-<link rel="icon" type="image/png" href="img/favicon-32x32.png">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700&family=Nunito:wght@400;600&display=stylesheet" rel="stylesheet">
+    <link rel="icon" type="image/png" href="img/favicon-32x32.png">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- SCRIPT DE AUTENTICAÇÃO -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // SUAS CREDENCIAIS DO SUPABASE
+        const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        // Tornar disponível globalmente para outros scripts
+        window.supabaseClient = supabaseClient;
+
+        async function verificarAutenticacao() {
+            try {
+                const { data: { user }, error } = await supabaseClient.auth.getUser();
+                
+                if (error || !user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Criar elemento para mostrar usuário logado
+                    const userInfo = document.createElement('div');
+                    userInfo.style.cssText = `
+                        background-color: #e3f2fd;
+                        padding: 10px;
+                        border-radius: 5px;
+                        margin-bottom: 20px;
+                        text-align: center;
+                        color: #0052a3;
+                        font-family: 'Exo 2', sans-serif;
+                        font-weight: 600;
+                    `;
+                    userInfo.innerHTML = `
+                        Bem-vindo, <strong>${user.email}</strong> 
+                        | <a href="#" onclick="logout()" style="color: #d32f2f; text-decoration: none;">Sair</a>
+                    `;
+                    
+                    const form = document.getElementById('form');
+                    form.parentNode.insertBefore(userInfo, form);
+                    
+                    // Buscar dados do usuário
+                    supabaseClient
+                        .from('usuarios')
+                        .select('setor_id, eh_admin, setores(nome)')
+                        .eq('id', user.id)
+                        .single()
+                        .then(({ data: usuario, error }) => {
+                            if (!error && usuario) {
+                                userInfo.innerHTML += `<br><small>Setor: ${usuario.setores?.nome || 'Não definido'}</small>`;
+                                
+                                // Pré-selecionar o setor do usuário
+                                if (usuario.setor_id) {
+                                    const setorSelect = document.getElementById('setor');
+                                    if (setorSelect) {
+                                        setorSelect.value = usuario.setor_id;
+                                    }
+                                }
+                            }
+                        });
+                });
+                
+                console.log('Usuário autenticado:', user.email);
+            } catch (error) {
+                console.error('Erro na verificação de autenticação:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        async function logout() {
+            try {
+                await supabaseClient.auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Iniciar verificação de autenticação
+        verificarAutenticacao();
+    </script>
 </head>
 <body>
     <header>
@@ -19,23 +103,22 @@
         <section class="container">
             <div id="form">
               <h2 id="texto1">Abrir Chamado</h2>
-
               <form id="formulario" >
                 <p>*Digite seu nome</p>
                 <input type="text" id="txtname" placeholder="Digite seu nome" required>
 
                 <select id="setor" required > 
                     <option value="" disabled selected>Qual seu Setor?</option>
-                    <option value="PCP">PCP</option>
-                    <option value="ENGENHARIA">ENGENHARIA</option>
-                    <option value="COMERCIAL">COMERCIAL</option>
-                    <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
-                    <option value="ALMOXARIFADO">ALMOXARIFADO</option>
-                    <option value="PROCESSOS">PROCESSOS</option>
+                    <option value="1">PCP</option>
+                    <option value="2">ENGENHARIA</option>
+                    <option value="3">COMERCIAL</option>
+                    <option value="4">ADMINISTRATIVO</option>
+                    <option value="5">ALMOXARIFADO</option>
+                    <option value="6">PROCESSOS</option>
+                    <option value="7">TI</option>
                 </select>
 
                 <p>*Descreva o Problema</p>
-
                 <textarea id="problema" placeholder="Descreva o Problema" required> </textarea>
 
                 <select id="área" required>
@@ -48,12 +131,11 @@
                 <button onclick="window.location.href='chamados.html'">Ver Chamados em Aberto</button>
 
               </form>  
-              
             </div>
         </section>
     </main>
 
+    <!-- Carregar o script.js no final do body -->
     <script src="script.js"></script>
 </body> 
 </html>
-

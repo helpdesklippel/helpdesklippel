@@ -19,6 +19,18 @@
       margin: 10px 0;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-left: 4px solid #004080;
+    }
+    .chamado.alta {
+      border-left-color: #d32f2f;
+    }
+    .chamado.urgente {
+      border-left-color: #b71c1c;
+      background-color: #ffebee;
+    }
+    .chamado.concluido {
+      opacity: 0.7;
+      border-left-color: #4caf50;
     }
     .atualizar {
       background-color: #004080;
@@ -46,63 +58,233 @@
     .voltar:hover {
       background-color: #555;
     }
+    .logout {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+      text-decoration: none;
+      display: inline-block;
+      float: right;
+    }
+    .logout:hover {
+      background-color: #b71c1c;
+    }
+    .user-info {
+      background-color: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .status-recebido { background-color: #e3f2fd; color: #1976d2; }
+    .status-andamento { background-color: #fff3e0; color: #f57c00; }
+    .status-aguardando { background-color: #fce4ec; color: #c2185b; }
+    .status-concluido { background-color: #e8f5e8; color: #388e3c; }
+    .prioridade-badge {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .prioridade-baixa { background-color: #e8f5e8; color: #2e7d32; }
+    .prioridade-media { background-color: #fff3e0; color: #ef6c00; }
+    .prioridade-alta { background-color: #ffebee; color: #c62828; }
+    .prioridade-urgente { background-color: #b71c1c; color: white; }
   </style>
 </head>
 <body>
+  <div id="userInfo" class="user-info" style="display: none;">
+    <div>
+      <strong>Usuário:</strong> <span id="userEmail"></span><br>
+      <strong>Setor:</strong> <span id="userSetor"></span>
+      <span id="userAdmin" style="display: none; margin-left: 10px; background-color: #4caf50; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">ADMIN</span>
+    </div>
+    <a href="#" class="logout" onclick="logout()">Sair</a>
+  </div>
+  
   <a href="index.html" class="voltar">← Voltar para Formulário</a>
   <h2>Chamados em Aberto</h2>
   <button class="atualizar" onclick="carregarChamados()">🔄 Atualizar Lista</button>
   <div id="listaChamados">Carregando...</div>
   
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // Definir a variável globalmente
-    let listaElemento = document.getElementById('listaChamados');
+    // SUAS CREDENCIAIS DO SUPABASE
+    const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
+    const { createClient } = window.supabase;
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
     
-    function carregarChamados() {
-      console.log('Carregando chamados...');
-      
-      // Mostrar mensagem de carregamento
-      listaElemento.innerHTML = "<p>Carregando chamados...</p>";
-      
-      // URL CORRIGIDA - usando o Render
-      fetch('https://helpdesklippel-1.onrender.com/api/chamados')
-        .then(response => {
-          console.log('Status:', response.status);
-          return response.json();
-        })
-        .then(chamados => {
-          console.log('Chamados recebidos:', chamados);
-          
-          if (chamados.length === 0) {
-            listaElemento.innerHTML = "<p>Nenhum chamado encontrado.</p>";
-          } else {
-            listaElemento.innerHTML = ''; // Limpa a lista
+    let listaElemento = document.getElementById('listaChamados');
+    let usuarioAtual = null;
+    let dadosUsuario = null;
+    
+    // Verificar se usuário está logado
+    async function verificarAutenticacao() {
+        try {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
             
-            chamados.forEach((chamado) => {
-              const div = document.createElement('div');
-              div.classList.add('chamado');
-              div.innerHTML = `
-                <strong>Nome:</strong> ${chamado.nome}<br>
-                <strong>Setor:</strong> ${chamado.setor}<br>
-                <strong>Prioridade:</strong> ${chamado.prioridade}<br>
-                <strong>Descrição:</strong> ${chamado.problema}<br>
-                <small><em>Data: ${new Date(chamado.created_at).toLocaleString()}</em></small>
-              `;
-              listaElemento.appendChild(div);
-            });
-          }
-        })
-        .catch(error => {
-          console.error('Erro ao buscar chamados:', error);
-          listaElemento.innerHTML = "<p>Erro ao carregar os chamados. Tente novamente.</p>";
-        });
+            if (error || !user) {
+                console.log('Usuário não autenticado:', error?.message);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            usuarioAtual = user;
+            
+            // Buscar dados adicionais do usuário
+            const { data: usuario, error: userError } = await supabaseClient
+                .from('usuarios')
+                .select('setor_id, eh_admin, setores(nome)')
+                .eq('id', user.id)
+                .single();
+                
+            if (userError) {
+                console.error('Erro ao buscar dados do usuário:', userError);
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            dadosUsuario = usuario;
+            
+            // Exibir informações do usuário
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userSetor').textContent = usuario.setores?.nome || 'Não definido';
+            
+            if (usuario.eh_admin) {
+                document.getElementById('userAdmin').style.display = 'inline-block';
+            }
+            
+            // Carregar chamados
+            carregarChamados();
+        } catch (error) {
+            console.error('Erro na verificação de autenticação:', error);
+            window.location.href = 'login.html';
+        }
     }
     
-    // Carregar chamados quando a página abrir
-    carregarChamados();
+    async function carregarChamados() {
+        console.log('Carregando chamados...');
+        listaElemento.innerHTML = "<p>Carregando chamados...</p>";
+        
+        try {
+            let query = supabaseClient
+                .from('Chamados')
+                .select(`
+                    *,
+                    setores (nome),
+                    status_chamado (nome)
+                `)
+                .order('created_at', { ascending: false });
+            
+            // Se não for admin, filtrar por setor
+            if (!dadosUsuario.eh_admin) {
+                query = query.eq('setor_id', dadosUsuario.setor_id);
+            }
+            
+            const { data: chamados, error } = await query;
+            
+            if (error) {
+                console.error('Erro ao buscar chamados:', error);
+                throw error;
+            }
+            
+            console.log('Chamados encontrados:', chamados);
+            
+            if (chamados.length === 0) {
+                listaElemento.innerHTML = "<p>Nenhum chamado encontrado para o seu setor.</p>";
+            } else {
+                listaElemento.innerHTML = '';
+                chamados.forEach((chamado) => {
+                    const div = document.createElement('div');
+                    
+                    // Adicionar classe baseada na prioridade
+                    let classePrioridade = '';
+                    if (chamado.prioridade === 'alta') classePrioridade = 'alta';
+                    if (chamado.prioridade === 'urgente') classePrioridade = 'urgente';
+                    if (chamado.status_chamado?.nome === 'Concluído') classePrioridade += ' concluido';
+                    
+                    div.classList.add('chamado', classePrioridade);
+                    
+                    // Mapear prioridade
+                    const prioridadeMap = {
+                        'baixa': '<span class="prioridade-badge prioridade-baixa">Baixa</span>',
+                        'média': '<span class="prioridade-badge prioridade-media">Média</span>',
+                        'alta': '<span class="prioridade-badge prioridade-alta">Alta</span>',
+                        'urgente': '<span class="prioridade-badge prioridade-urgente">Urgente</span>'
+                    };
+                    
+                    // Mapear status
+                    const statusMap = {
+                        'Recebido': '<span class="status-badge status-recebido">Recebido</span>',
+                        'Em Andamento': '<span class="status-badge status-andamento">Em Andamento</span>',
+                        'Aguardando': '<span class="status-badge status-aguardando">Aguardando</span>',
+                        'Concluído': '<span class="status-badge status-concluido">Concluído</span>'
+                    };
+                    
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div>
+                                <strong>${chamado.nome}</strong>
+                                ${chamado.prioridade ? prioridadeMap[chamado.prioridade] || '' : ''}
+                                ${chamado.status_chamado?.nome ? statusMap[chamado.status_chamado.nome] || '' : ''}
+                            </div>
+                            <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
+                        </div>
+                        <p><strong>Setor:</strong> ${chamado.setores?.nome || 'Não definido'}</p>
+                        <p><strong>Descrição:</strong> ${chamado.problema}</p>
+                        ${chamado.interferencia ? `<p><strong>Interferência:</strong> ${chamado.interferencia}</p>` : ''}
+                    `;
+                    listaElemento.appendChild(div);
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar chamados:', error);
+            listaElemento.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
+            
+            // Se for erro de autenticação, redirecionar para login
+            if (error.message.includes('Sessão expirada') || error.message.includes('não autenticado')) {
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            }
+        }
+    }
     
-    // Atualizar a cada 30 segundos
-    setInterval(carregarChamados, 30000);
+    async function logout() {
+        try {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Erro ao fazer logout:', error);
+            window.location.href = 'login.html';
+        }
+    }
+    
+    // Verificar autenticação ao carregar a página
+    document.addEventListener('DOMContentLoaded', verificarAutenticacao);
+    
+    // Atualizar a cada 30 segundos (apenas se usuário estiver autenticado)
+    setInterval(() => {
+        if (usuarioAtual && dadosUsuario) {
+            carregarChamados();
+        }
+    }, 30000);
   </script>
 </body>
 </html>
