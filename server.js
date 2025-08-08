@@ -17,7 +17,76 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rota POST para salvar chamado com debug detalhado
+// Rota raiz
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>API de Chamados LIPPEL</h1>
+    <h2>Status: Online ✅</h2>
+    <p>Rotas disponíveis:</p>
+    <ul>
+      <li><strong>GET</strong> <a href="/api/test">/api/test</a> - Teste do servidor</li>
+      <li><strong>GET</strong> <a href="/api/chamados">/api/chamados</a> - Listar chamados</li>
+      <li><strong>POST</strong> /api/chamados - Criar chamado</li>
+    </ul>
+    <p><em>Servidor rodando na porta: ${PORT}</em></p>
+  `);
+});
+
+// Rota de teste
+app.get('/api/test', (req, res) => {
+  console.log('🔍 Rota /api/test acessada');
+  res.json({ 
+    message: '✅ Servidor está funcionando!',
+    timestamp: new Date().toISOString(),
+    method: req.method,
+    url: req.url,
+    env: {
+      SUPABASE_URL: process.env.SUPABASE_URL ? '✅ Configurado' : '❌ Não configurado',
+      SUPABASE_KEY: process.env.SUPABASE_KEY ? '✅ Configurado' : '❌ Não configurado'
+    }
+  });
+});
+
+// Rota GET para buscar chamados
+app.get('/api/chamados', async (req, res) => {
+  try {
+    console.log('🔍 Buscando chamados...');
+    
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return res.status(500).json({ error: '❌ Variáveis de ambiente não configuradas' });
+    }
+    
+    const response = await fetch(`${supabaseUrl}/rest/v1/Chamados?select=*,setores(nome),status_chamado(nome)`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`
+      }
+    });
+    
+    const data = await response.json();
+    console.log('📊 Resposta do Supabase:', response.status, data);
+    
+    if (!response.ok) {
+      return res.status(500).json({ 
+        error: '❌ Erro ao buscar chamados', 
+        details: data,
+        status: response.status 
+      });
+    }
+    
+    res.json(data);
+  } catch (err) {
+    console.error('❌ Erro ao buscar chamados:', err);
+    res.status(500).json({ error: 'Erro no servidor', details: err.message });
+  }
+});
+
+// Rota POST para salvar chamado - VERSÃO DEFINITIVA
 app.post('/api/chamados', async (req, res) => {
   try {
     console.log('=== INÍCIO DA REQUISIÇÃO POST /api/chamados ===');
@@ -71,7 +140,7 @@ app.post('/api/chamados', async (req, res) => {
       created_at: new Date().toISOString()
     };
     
-    // Adicionar campos opcionais
+    // Adicionar campos opcionais se existirem
     if (status_id) chamadoParaInserir.status_id = status_id;
     if (interferencia) chamadoParaInserir.interferencia = interferencia;
     
@@ -162,10 +231,50 @@ app.post('/api/chamados', async (req, res) => {
   }
 });
 
-// Manter as outras rotas existentes...
+// Rota de health check
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Rota 404 para rotas não encontradas
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Rota não encontrada',
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Middleware de erro global
+app.use((err, req, res, next) => {
+  console.error('❌ Erro não tratado:', err);
+  res.status(500).json({
+    error: 'Erro interno do servidor',
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor rodando na porta ${PORT}`);
+  console.log('🚀 === SERVIDOR INICIADO ===');
+  console.log(`🌐 Porta: ${PORT}`);
+  console.log(`🔗 URL: http://localhost:${PORT}`);
   console.log(`🕒 Timestamp: ${new Date().toISOString()}`);
+  console.log('🔑 Variáveis de ambiente:');
+  console.log(`SUPABASE_URL: ${process.env.SUPABASE_URL ? '✅ OK' : '❌ NÃO DEFINIDO'}`);
+  console.log(`SUPABASE_KEY: ${process.env.SUPABASE_KEY ? '✅ OK' : '❌ NÃO DEFINIDO'}`);
+  console.log('🛣️  Rotas disponíveis:');
+  console.log(`   GET  /           - Página de status`);
+  console.log(`   GET  /api/test   - Teste do servidor`);
+  console.log(`   GET  /api/chamados - Listar chamados`);
+  console.log(`   POST /api/chamados - Criar chamado`);
+  console.log(`   GET  /health      - Health check`);
+  console.log('====================================');
 });
