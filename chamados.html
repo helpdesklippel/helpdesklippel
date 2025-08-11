@@ -190,30 +190,26 @@
       listaElemento.innerHTML = "<p>Carregando chamados...</p>";
       
       try {
-        let query = supabaseClient
-          .from('Chamados')
-          .select(`
-            *,
-            setores (nome),
-            status_chamado (nome)
-          `)
-          .order('created_at', { ascending: false });
+        // Usar a API do backend em vez de consultar diretamente o Supabase
+        const { data: { session } } = await supabaseClient.auth.getSession();
         
-        // Se não for admin, filtrar por setor
-        if (!dadosUsuario.eh_admin) {
-          console.log('Filtrando por setor_id:', dadosUsuario.setor_id);
-          query = query.eq('setor_id', dadosUsuario.setor_id);
-        } else {
-          console.log('Usuário admin - mostrando todos os chamados');
+        if (!session) {
+          window.location.href = 'login.html';
+          return;
         }
         
-        const { data: chamados, error } = await query;
+        const response = await fetch('https://helpdesklippel-1.onrender.com/api/chamados', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
         
-        if (error) {
-          console.error('Erro ao buscar chamados:', error);
-          throw error;
+        if (!response.ok) {
+          throw new Error('Erro ao buscar chamados');
         }
         
+        const chamados = await response.json();
         console.log('Chamados encontrados:', chamados);
         
         if (chamados.length === 0) {
@@ -247,6 +243,10 @@
               'Concluído': '<span class="status-badge status-concluido">Concluído</span>'
             };
             
+            // Garantir que o setor seja exibido corretamente
+            // Prioridade: 1. setores.nome, 2. setor, 3. "Não definido"
+            const setorNome = chamado.setores?.nome || chamado.setor || 'Não definido';
+            
             div.innerHTML = `
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
                 <div>
@@ -256,7 +256,7 @@
                 </div>
                 <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
               </div>
-              <p><strong>Setor:</strong> ${chamado.setores?.nome || 'Não definido'} (ID: ${chamado.setor_id})</p>
+              <p><strong>Setor:</strong> ${setorNome}</p>
               <p><strong>Descrição:</strong> ${chamado.problema}</p>
               ${chamado.interferencia ? `<p><strong>Interferência:</strong> ${chamado.interferencia}</p>` : ''}
             `;
