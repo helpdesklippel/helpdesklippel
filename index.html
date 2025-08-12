@@ -50,7 +50,7 @@
                         | <a href="#" onclick="logout()" style="color: #d32f2f; text-decoration: none;">Sair</a>
                     `;
                     
-                    const form = document.getElementById('form');
+                    const form = document.getElementById('formulario');
                     form.parentNode.insertBefore(userInfo, form);
                     
                     // Buscar dados do usuário
@@ -103,7 +103,7 @@
         <section class="container">
             <div id="form">
               <h2 id="texto1">Abrir Chamado</h2>
-              <form id="formulario" >
+              <form id="formulario">
                 <p>*Digite seu nome</p>
                 <input type="text" id="txtname" placeholder="Digite seu nome" required>
 
@@ -119,12 +119,30 @@
                 </select>
 
                 <p>*Descreva o Problema</p>
-                <textarea id="problema" placeholder="Descreva o Problema" required> </textarea>
+                <textarea id="problema" placeholder="Descreva o Problema" required></textarea>
 
                 <select id="área" required>
                     <option value="" disabled selected>Tipo de Solicitação</option>
                     <option value="SUPORTE TÉCNICO">SUPORTE TÉCNICO</option>
                     <option value="DESENVOLVIMENTO">DESENVOLVIMENTO</option>
+                </select>
+
+                <p>*Prioridade</p>
+                <select id="prioridade" required>
+                    <option value="" disabled selected>Selecione a prioridade</option>
+                    <option value="baixa">Baixa</option>
+                    <option value="média">Média</option>
+                    <option value="alta">Alta</option>
+                    <option value="crítica">Crítica</option>
+                </select>
+
+                <p>*Nível de Interferência</p>
+                <select id="interferencia" required>
+                    <option value="" disabled selected>Selecione o nível de interferência</option>
+                    <option value="nenhuma">Nenhuma</option>
+                    <option value="leve">Interferência leve (trabalho continua)</option>
+                    <option value="média">Interferência média (tarefas parcialmente interrompidas)</option>
+                    <option value="grave">Interferência grave (trabalho interrompido)</option>
                 </select>
 
                 <button type="button" onclick="enviarChamado()" class="btn-enviar">Enviar</button>

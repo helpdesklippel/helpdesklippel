@@ -8,6 +8,8 @@ async function enviarChamado() {
     const setorTexto = setorSelect.options[setorSelect.selectedIndex].text;
     const problema = document.getElementById('problema').value;
     const area = document.getElementById('área').value;
+    const prioridade = document.getElementById('prioridade').value;
+    const interferencia = document.getElementById('interferencia').value;
     
     console.log('📋 Dados do formulário:');
     console.log('  nome:', nome);
@@ -15,8 +17,10 @@ async function enviarChamado() {
     console.log('  setorTexto:', setorTexto);
     console.log('  problema:', problema);
     console.log('  area:', area);
+    console.log('  prioridade:', prioridade);
+    console.log('  interferencia:', interferencia);
     
-    if (!nome || !setorId || !problema || !area) {
+    if (!nome || !setorId || !problema || !area || !prioridade || !interferencia) {
       console.error('❌ Campos obrigatórios não preenchidos');
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
@@ -26,10 +30,10 @@ async function enviarChamado() {
         nome: nome,
         setor: setorTexto,
         problema: problema,
-        prioridade: area,
+        prioridade: prioridade,
+        interferencia: interferencia,
         setor_id: parseInt(setorId),
         status_id: 1, // Status inicial: "Recebido"
-        interferencia: 'nenhuma' // Valor padrão
     };
     
     console.log('💾 Chamado a ser enviado:', JSON.stringify(chamado, null, 2));
