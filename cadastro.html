@@ -43,7 +43,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script>
-        // SUAS CREDENCIAIS DO SUPABASE
         const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
         const { createClient } = window.supabase;
@@ -57,84 +56,35 @@
             const senha = document.getElementById('senha').value;
             const setor = document.getElementById('setor').value;
             
-            console.log('Iniciando cadastro...');
-            console.log('Dados:', { nome, email, setor });
-            
             try {
-                // 1. Criar usuário no Supabase Auth
-                console.log('Criando usuário no Supabase Auth...');
+                // Agora, só precisamos de fazer o signUp. O gatilho fará o resto!
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
                     password: senha,
                     options: {
                         data: {
                             nome: nome,
-                            setor_id: parseInt(setor)
-                        },
-                        // Configurar o redirecionamento para o GitHub Pages
-                        redirectTo: window.location.origin + '/login.html'
+                            setor_id: setor // O 'parseInt' agora é feito pela base de dados
+                        }
                     }
                 });
-                
+
                 if (error) {
-                    console.error('Erro no Supabase Auth:', error);
                     throw error;
                 }
                 
-                console.log('Resposta do Supabase Auth:', data);
-                
-                if (data.user) {
-                    console.log('Usuário criado com ID:', data.user.id);
-                    
-                    // 2. Inserir manualmente na tabela usuarios
-                    try {
-                        console.log('Inserindo na tabela usuarios...');
-                        
-                        const { data: insertData, error: insertError } = await supabaseClient
-                            .from('usuarios')
-                            .insert([{
-                                id: data.user.id,
-                                nome: nome,
-                                email: email,
-                                setor_id: parseInt(setor)
-                            }]);
-                        
-                        if (insertError) {
-                            console.error('Erro ao inserir na tabela usuarios:', insertError);
-                            throw insertError;
-                        }
-                        
-                        console.log('Usuário inserido na tabela com sucesso:', insertData);
-                        
-                        alert('Cadastro realizado com sucesso! Verifique seu e-mail para confirmação.');
-                        window.location.href = 'login.html';
-                        
-                    } catch (insertErr) {
-                        console.error('Exceção na inserção manual:', insertErr);
-                        throw insertErr;
-                    }
-                } else {
-                    alert('Cadastro iniciado! Verifique seu e-mail.');
-                    window.location.href = 'login.html';
-                }
+                alert('Cadastro realizado! Verifique a sua caixa de entrada para confirmar o seu e-mail.');
+                window.location.href = 'login.html';
                 
             } catch (error) {
-                console.error('Erro completo no processo:', error);
-                
-                // Mensagens de erro mais amigáveis
-                let mensagemErro = error.message;
-                
+                console.error('Erro no processo de cadastro:', error);
+                let mensagemErro = 'Ocorreu um erro ao realizar o cadastro.';
                 if (error.message.includes('already registered')) {
                     mensagemErro = 'Este e-mail já está cadastrado. Tente fazer login.';
-                } else if (error.message.includes('invalid email')) {
-                    mensagemErro = 'E-mail inválido. Verifique o formato.';
                 } else if (error.message.includes('password')) {
                     mensagemErro = 'A senha deve ter pelo menos 6 caracteres.';
-                } else if (error.message.includes('duplicate key')) {
-                    mensagemErro = 'Este e-mail já está em uso.';
                 }
-                
-                alert('Erro ao cadastrar: ' + mensagemErro);
+                alert(mensagemErro);
             }
         });
     </script>

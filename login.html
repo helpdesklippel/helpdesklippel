@@ -36,31 +36,16 @@
         const { createClient } = window.supabase;
         const supabaseClient = createClient(supabaseUrl, supabaseKey);
         
-        // Verificar se o usuário está vindo de um link de confirmação
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Verificar se há um token de confirmação na URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const accessToken = urlParams.get('access_token');
-            const refreshToken = urlParams.get('refresh_token');
-            
-            if (accessToken && refreshToken) {
-                // Se houver tokens, tentar fazer login automático
-                const { data, error } = await supabaseClient.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken
-                });
-                
-                if (!error) {
-                    // Login automático bem-sucedido
-                    alert('E-mail confirmado com sucesso!');
-                    window.location.href = 'index.html';
-                } else {
-                    console.error('Erro ao confirmar e-mail:', error);
-                    alert('Erro ao confirmar e-mail. Tente fazer login manualmente.');
-                }
+        // Função para detetar confirmação de e-mail na URL
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            // Este evento é acionado quando o usuário chega na página
+            // vindo do link de confirmação de e-mail.
+            if (event === 'SIGNED_IN' && session) {
+                alert('E-mail confirmado com sucesso! Você será redirecionado.');
+                window.location.href = 'index.html';
             }
         });
-        
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -75,11 +60,8 @@
                 
                 if (error) throw error;
                 
-                // Salvar dados do usuário no localStorage
-                localStorage.setItem('usuario', JSON.stringify(data.user));
-                
-                // Redirecionar para a página de chamados
-                window.location.href = 'index.html';
+                window.location.href = 'index.html'; // Redirecionar para a página principal após login
+
             } catch (error) {
                 alert('Erro ao fazer login: ' + error.message);
             }
