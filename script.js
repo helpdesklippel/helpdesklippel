@@ -4,8 +4,21 @@ async function enviarChamado() {
     
     const nome = document.getElementById('txtname').value;
     const setorSelect = document.getElementById('setor');
-    const setorId = setorSelect.value;
-    const setorTexto = setorSelect.options[setorSelect.selectedIndex].text;
+    const setorIdHidden = document.getElementById('setor_id_hidden');
+    
+    // Usar o valor do hidden se o select estiver desabilitado, caso contrário usar o select
+    let setorId, setorTexto;
+    
+    if (setorSelect.disabled && setorIdHidden) {
+        setorId = setorIdHidden.value;
+        setorTexto = setorSelect.options[setorSelect.selectedIndex].text;
+        console.log('Usando setorId do campo hidden:', setorId);
+    } else {
+        setorId = setorSelect.value;
+        setorTexto = setorSelect.options[setorSelect.selectedIndex].text;
+        console.log('Usando setorId do select:', setorId);
+    }
+    
     const problema = document.getElementById('problema').value;
     const area = document.getElementById('área').value;
     const prioridade = document.getElementById('prioridade').value;
@@ -32,7 +45,7 @@ async function enviarChamado() {
         problema: problema,
         prioridade: prioridade,
         interferencia: interferencia,
-        setor_id: parseInt(setorId),
+        setor_id: parseInt(setorId), // Garantir que seja um número
         status_id: 1, // Status inicial: "Recebido"
     };
     

@@ -4,139 +4,37 @@
   <meta charset="UTF-8">
   <title>Chamados em Aberto - Lippel</title>
   <style>
-    body {
-      font-family: Arial;
-      background-color: #f4f4f4;
-      padding: 20px;
-      margin: 0;
-    }
-    h2 {
-      color: #004080;
-    }
-    .chamado {
-      background-color: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      border-left: 4px solid #004080;
-    }
-    .chamado.alta {
-      border-left-color: #d32f2f;
-    }
-    .chamado.urgente {
-      border-left-color: #b71c1c;
-      background-color: #ffebee;
-    }
-    .chamado.concluido {
-      opacity: 0.7;
-      border-left-color: #4caf50;
-    }
-    .atualizar {
-      background-color: #004080;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    .atualizar:hover {
-      background-color: #003060;
-    }
-    .voltar {
-      background-color: #666;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 10px 0;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .voltar:hover {
-      background-color: #555;
-    }
-    .logout {
-      background-color: #d32f2f;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 10px 0;
-      text-decoration: none;
-      display: inline-block;
-      float: right;
-    }
-    .logout:hover {
-      background-color: #b71c1c;
-    }
-    .user-info {
-      background-color: #e3f2fd;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
+    body { font-family: Arial; background-color: #f4f4f4; padding: 20px; margin: 0; }
+    h2 { color: #004080; }
+    .chamado { background-color: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-left: 4px solid #004080; }
+    .chamado.alta { border-left-color: #d32f2f; }
+    .chamado.urgente { border-left-color: #b71c1c; background-color: #ffebee; }
+    .chamado.concluido { opacity: 0.7; border-left-color: #4caf50; }
+    .atualizar { background-color: #004080; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 10px 0; }
+    .atualizar:hover { background-color: #003060; }
+    .voltar { background-color: #666; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 10px 0; text-decoration: none; display: inline-block; }
+    .voltar:hover { background-color: #555; }
+    .logout { background-color: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 10px 0; text-decoration: none; display: inline-block; float: right; }
+    .logout:hover { background-color: #b71c1c; }
+    .user-info { background-color: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .status-badge, .prioridade-badge, .interferencia-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; margin-left: 5px; }
     .status-recebido { background-color: #e3f2fd; color: #1976d2; }
     .status-andamento { background-color: #fff3e0; color: #f57c00; }
     .status-aguardando { background-color: #fce4ec; color: #c2185b; }
     .status-concluido { background-color: #e8f5e8; color: #388e3c; }
-    .prioridade-badge {
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 11px;
-      font-weight: bold;
-      margin-left: 5px;
-    }
     .prioridade-baixa { background-color: #e8f5e8; color: #2e7d32; }
     .prioridade-media { background-color: #fff3e0; color: #ef6c00; }
     .prioridade-alta { background-color: #ffebee; color: #c62828; }
     .prioridade-critica { background-color: #b71c1c; color: white; }
-    .interferencia-badge {
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 11px;
-      font-weight: bold;
-      margin-left: 5px;
-    }
     .interferencia-nenhuma { background-color: #e8f5e8; color: #2e7d32; }
     .interferencia-leve { background-color: #fff3e0; color: #ef6c00; }
     .interferencia-media { background-color: #ffebee; color: #c62828; }
     .interferencia-grave { background-color: #b71c1c; color: white; }
-    .status-select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 12px;
-      margin-top: 5px;
-      width: 150px;
-    }
-    .btn-atualizar {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      margin-left: 10px;
-    }
-    .btn-atualizar:hover {
-      background-color: #45a049;
-    }
+    .status-select { padding: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 12px; margin-top: 5px; width: 150px; }
+    .btn-atualizar { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 10px; }
+    .btn-atualizar:hover { background-color: #45a049; }
+    .debug-panel { background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; padding: 10px; margin-bottom: 20px; font-family: monospace; font-size: 12px; color: #333; }
+    .debug-title { font-weight: bold; margin-bottom: 5px; color: #004080; }
   </style>
 </head>
 <body>
@@ -148,7 +46,10 @@
     </div>
     <a href="#" class="logout" onclick="logout()">Sair</a>
   </div>
-  
+  <div id="debugPanel" class="debug-panel" style="display: none;">
+    <div class="debug-title">Informações de Depuração:</div>
+    <div id="debugContent"></div>
+  </div>
   <a href="index.html" class="voltar">← Voltar para Formulário</a>
   <h2>Chamados em Aberto</h2>
   <button class="atualizar" onclick="carregarChamados()">🔄 Atualizar Lista</button>
@@ -156,7 +57,6 @@
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    // SUAS CREDENCIAIS DO SUPABASE
     const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
     const { createClient } = window.supabase;
@@ -166,233 +66,137 @@
     let usuarioAtual = null;
     let dadosUsuario = null;
     
-    // Verificar se usuário está logado
+    // As funções verificarAutenticacao, addDebugInfo, atualizarStatus e logout continuam iguais
+    // ... (código das outras funções aqui) ...
+    function addDebugInfo(message) {
+      console.log(message);
+      document.getElementById('debugContent').innerHTML += `<p>${message}</p>`;
+      document.getElementById('debugPanel').style.display = 'block';
+    }
+    
     async function verificarAutenticacao() {
-      try {
-        const { data: { user }, error } = await supabaseClient.auth.getUser();
-        
-        if (error || !user) {
-          console.log('Usuário não autenticado:', error?.message);
-          window.location.href = 'login.html';
-          return;
+        try {
+            addDebugInfo('Verificando autenticação...');
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) { window.location.href = 'login.html'; return; }
+            usuarioAtual = user;
+            addDebugInfo(`Usuário autenticado: ${user.email}`);
+            const { data: usuario, error: userError } = await supabaseClient.from('usuarios').select('setor_id, eh_admin, setores(nome)').eq('id', user.id).single();
+            if (userError) { throw userError; }
+            dadosUsuario = usuario;
+            addDebugInfo(`Dados do usuário: ${JSON.stringify(usuario)}`);
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userSetor').textContent = usuario.setores?.nome || 'Não definido';
+            if (usuario.eh_admin) { document.getElementById('userAdmin').style.display = 'inline-block'; }
+            carregarChamados();
+        } catch (error) {
+            addDebugInfo(`Erro na verificação: ${error.message}`);
+            // window.location.href = 'login.html';
         }
-        
-        usuarioAtual = user;
-        
-        // Buscar dados adicionais do usuário
-        const { data: usuario, error: userError } = await supabaseClient
-          .from('usuarios')
-          .select('setor_id, eh_admin, setores(nome)')
-          .eq('id', user.id)
-          .single();
-          
-        if (userError) {
-          console.error('Erro ao buscar dados do usuário:', userError);
-          window.location.href = 'login.html';
-          return;
-        }
-        
-        dadosUsuario = usuario;
-        
-        // Exibir informações do usuário
-        const userInfoDiv = document.getElementById('userInfo');
-        const userEmailSpan = document.getElementById('userEmail');
-        const userSetorSpan = document.getElementById('userSetor');
-        const userAdminSpan = document.getElementById('userAdmin');
-        
-        if (userInfoDiv && userEmailSpan && userSetorSpan && userAdminSpan) {
-          userInfoDiv.style.display = 'flex';
-          userEmailSpan.textContent = user.email;
-          userSetorSpan.textContent = usuario.setores?.nome || 'Não definido';
-          
-          if (usuario.eh_admin) {
-            userAdminSpan.style.display = 'inline-block';
-          }
-        }
-        
-        // Carregar chamados
-        carregarChamados();
-      } catch (error) {
-        console.error('Erro na verificação de autenticação:', error);
-        window.location.href = 'login.html';
-      }
     }
-    
+
+    // =============================================================
+    // FUNÇÃO carregarChamados COM O CÓDIGO DE EXIBIÇÃO CORRIGIDO
+    // =============================================================
     async function carregarChamados() {
-      console.log('Carregando chamados...');
-      listaElemento.innerHTML = "<p>Carregando chamados...</p>";
-      
-      try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (!session) {
-          window.location.href = 'login.html';
-          return;
+        addDebugInfo('Carregando chamados (via Backend)...');
+        listaElemento.innerHTML = "<p>Carregando chamados...</p>";
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const token = session.access_token;
+            const response = await fetch('https://helpdesklippel-1.onrender.com/api/chamados', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) { throw new Error((await response.json()).error); }
+            const chamados = await response.json();
+            addDebugInfo(`Chamados recebidos do backend: ${chamados?.length || 0}`);
+            
+            if (!chamados || chamados.length === 0) {
+                listaElemento.innerHTML = "<p>Nenhum chamado encontrado.</p>";
+                return;
+            }
+
+            listaElemento.innerHTML = ''; // Limpa a lista
+            
+            // Definição dos mapas de badges
+            const prioridadeMap = { 'baixa': '<span class="prioridade-badge prioridade-baixa">Baixa</span>', 'média': '<span class="prioridade-badge prioridade-media">Média</span>', 'alta': '<span class="prioridade-badge prioridade-alta">Alta</span>', 'crítica': '<span class="prioridade-badge prioridade-critica">Crítica</span>' };
+            const statusMap = { 'Recebido': '<span class="status-badge status-recebido">Recebido</span>', 'Em Andamento': '<span class="status-badge status-andamento">Em Andamento</span>', 'Aguardando': '<span class="status-badge status-aguardando">Aguardando</span>', 'Concluído': '<span class="status-badge status-concluido">Concluído</span>' };
+            const interferenciaMap = { 'nenhuma': '<span class="interferencia-badge interferencia-nenhuma">Nenhuma</span>', 'leve': '<span class="interferencia-badge interferencia-leve">Leve</span>', 'média': '<span class="interferencia-badge interferencia-média">Média</span>', 'grave': '<span class="interferencia-badge interferencia-grave">Grave</span>' };
+
+            chamados.forEach((chamado) => {
+                const div = document.createElement('div');
+                let classes = ['chamado'];
+                if (chamado.prioridade === 'alta') classes.push('alta');
+                if (chamado.prioridade === 'crítica') classes.push('urgente');
+                if (chamado.status_chamado?.nome === 'Concluído') classes.push('concluido');
+                div.className = classes.join(' ');
+                
+                const setorNome = chamado.setores?.nome || chamado.setor || 'Não definido';
+                
+                // CÓDIGO DE EXIBIÇÃO RESTAURADO E CORRIGIDO
+                div.innerHTML = `
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                      <strong>${chamado.nome}</strong>
+                      ${chamado.prioridade ? prioridadeMap[chamado.prioridade.toLowerCase()] || '' : ''}
+                      ${chamado.interferencia ? interferenciaMap[chamado.interferencia.toLowerCase()] || '' : ''}
+                      ${chamado.status_chamado?.nome ? statusMap[chamado.status_chamado.nome] || '' : ''}
+                    </div>
+                    <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
+                  </div>
+                  <p><strong>Setor:</strong> ${setorNome}</p>
+                  <p><strong>Descrição:</strong> ${chamado.problema}</p>
+                  
+                  ${dadosUsuario && dadosUsuario.eh_admin ? `
+                    <div style="margin-top: 10px; display: flex; align-items: center;">
+                      <select class="status-select" id="status-${chamado.id}">
+                        <option value="1" ${chamado.status_id === 1 ? 'selected' : ''}>Recebido</option>
+                        <option value="2" ${chamado.status_id === 2 ? 'selected' : ''}>Em Andamento</option>
+                        <option value="3" ${chamado.status_id === 3 ? 'selected' : ''}>Aguardando</option>
+                        <option value="4" ${chamado.status_id === 4 ? 'selected' : ''}>Concluído</option>
+                      </select>
+                      <button class="btn-atualizar" onclick="atualizarStatus('${chamado.id}')">Atualizar</button>
+                    </div>
+                  ` : ''}
+                `;
+                listaElemento.appendChild(div);
+            });
+        } catch(error) {
+            addDebugInfo(`Erro ao carregar chamados: ${error.message}`);
+            listaElemento.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
         }
-        
-        // Em produção, usamos a API do backend
-        const response = await fetch('https://helpdesklippel-1.onrender.com/api/chamados', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Erro ao buscar chamados');
-        }
-        
-        const chamados = await response.json();
-        console.log('📋 Chamados recebidos:', chamados.length);
-        
-        if (chamados.length === 0) {
-          listaElemento.innerHTML = "<p>Nenhum chamado encontrado para o seu setor.</p>";
-        } else {
-          listaElemento.innerHTML = '';
-          chamados.forEach((chamado) => {
-            const div = document.createElement('div');
-            
-            // Adicionar classe baseada na prioridade
-            let classes = ['chamado'];
-            if (chamado.prioridade === 'alta') classes.push('alta');
-            if (chamado.prioridade === 'crítica') classes.push('urgente');
-            if (chamado.status_chamado?.nome === 'Concluído') classes.push('concluido');
-            
-            div.className = classes.join(' ');
-            
-            // Mapear prioridade
-            const prioridadeMap = {
-                'baixa': '<span class="prioridade-badge prioridade-baixa">Baixa</span>',
-                'média': '<span class="prioridade-badge prioridade-media">Média</span>',
-                'alta': '<span class="prioridade-badge prioridade-alta">Alta</span>',
-                'crítica': '<span class="prioridade-badge prioridade-critica">Crítica</span>'
-            };
-            
-            // Mapear status
-            const statusMap = {
-                'Recebido': '<span class="status-badge status-recebido">Recebido</span>',
-                'Em Andamento': '<span class="status-badge status-andamento">Em Andamento</span>',
-                'Aguardando': '<span class="status-badge status-aguardando">Aguardando</span>',
-                'Concluído': '<span class="status-badge status-concluido">Concluído</span>'
-            };
-            
-            // Mapear interferência
-            const interferenciaMap = {
-                'nenhuma': '<span class="interferencia-badge interferencia-nenhuma">Nenhuma</span>',
-                'leve': '<span class="interferencia-badge interferencia-leve">Leve</span>',
-                'média': '<span class="interferencia-badge interferencia-média">Média</span>',
-                'grave': '<span class="interferencia-badge interferencia-grave">Grave</span>'
-            };
-            
-            // Garantir que o setor seja exibido corretamente
-            const setorNome = chamado.setores?.nome || chamado.setor || 'Não definido';
-            
-            div.innerHTML = `
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <div>
-                  <strong>${chamado.nome}</strong>
-                  ${chamado.prioridade ? prioridadeMap[chamado.prioridade] || '' : ''}
-                  ${chamado.interferencia ? interferenciaMap[chamado.interferencia] || '' : ''}
-                  ${chamado.status_chamado?.nome ? statusMap[chamado.status_chamado.nome] || '' : ''}
-                </div>
-                <small style="color: #666;">${new Date(chamado.created_at).toLocaleString()}</small>
-              </div>
-              <p><strong>Setor:</strong> ${setorNome}</p>
-              <p><strong>Descrição:</strong> ${chamado.problema}</p>
-              
-              <!-- Botão para admin alterar status -->
-              ${dadosUsuario && dadosUsuario.eh_admin ? `
-                <div style="margin-top: 10px; display: flex; align-items: center;">
-                  <select class="status-select" id="status-${chamado.id}">
-                    <option value="">Alterar status</option>
-                    <option value="1" ${chamado.status_id === 1 ? 'selected' : ''}>Recebido</option>
-                    <option value="2" ${chamado.status_id === 2 ? 'selected' : ''}>Em Andamento</option>
-                    <option value="3" ${chamado.status_id === 3 ? 'selected' : ''}>Aguardando</option>
-                    <option value="4" ${chamado.status_id === 4 ? 'selected' : ''}>Concluído</option>
-                  </select>
-                  <button class="btn-atualizar" onclick="atualizarStatus(${chamado.id})">Atualizar</button>
-                </div>
-              ` : ''}
-            `;
-            listaElemento.appendChild(div);
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao carregar chamados:', error);
-        listaElemento.innerHTML = `<p style="color: red;">Erro: ${error.message}</p>`;
-        
-        // Se for erro de autenticação, redirecionar para login
-        if (error.message.includes('Sessão expirada') || error.message.includes('não autenticado')) {
-          setTimeout(() => {
-            window.location.href = 'login.html';
-          }, 2000);
-        }
-      }
     }
-    
+
     async function atualizarStatus(chamadoId) {
-      try {
-        const statusSelect = document.getElementById(`status-${chamadoId}`);
-        const novoStatus = statusSelect.value;
-        
-        if (!novoStatus) {
-          alert('Selecione um status para atualizar');
-          return;
+        try {
+            const novoStatus = document.getElementById(`status-${chamadoId}`).value;
+            if (!novoStatus) { alert('Selecione um status.'); return; }
+            addDebugInfo(`Atualizando chamado ID ${chamadoId} para status ${novoStatus}`);
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            const response = await fetch(`https://helpdesklippel-1.onrender.com/api/chamados/${chamadoId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+                body: JSON.stringify({ status_id: parseInt(novoStatus) })
+            });
+            if (!response.ok) { throw new Error(`Erro ${response.status}: ${(await response.json()).error}`); }
+            alert('Status atualizado com sucesso!');
+            carregarChamados();
+        } catch (error) {
+            addDebugInfo(`Erro ao atualizar: ${error.message}`);
+            alert(`Erro ao atualizar status: ${error.message}`);
         }
-        
-        console.log(`Atualizando status do chamado ${chamadoId} para ${novoStatus}`);
-        
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        
-        if (!session) {
-          window.location.href = 'login.html';
-          return;
-        }
-        
-        // Em produção, usamos a API do backend para atualizar
-        const response = await fetch(`https://helpdesklippel-1.onrender.com/api/chamados/${chamadoId}/status`, {
-          method: 'POST', // Usando POST para evitar problemas de CORS
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-          },
-          body: JSON.stringify({ status_id: parseInt(novoStatus) })
-        });
-        
-        if (!response.ok) {
-          throw new Error('Erro ao atualizar status');
-        }
-        
-        console.log('Status atualizado com sucesso');
-        
-        // Atualizar a lista de chamados
-        carregarChamados();
-        alert('Status atualizado com sucesso!');
-      } catch (error) {
-        console.error('Erro ao atualizar status:', error);
-        alert('Erro ao atualizar status: ' + error.message);
-      }
     }
-    
+
     async function logout() {
-      try {
         await supabaseClient.auth.signOut();
         window.location.href = 'login.html';
-      } catch (error) {
-        console.error('Erro ao fazer logout:', error);
-        window.location.href = 'login.html';
-      }
     }
-    
-    // Verificar autenticação ao carregar a página
+
     document.addEventListener('DOMContentLoaded', verificarAutenticacao);
-    
-    // Atualizar a cada 30 segundos (apenas se usuário estiver autenticado)
-    setInterval(() => {
-      if (usuarioAtual && dadosUsuario) {
-        carregarChamados();
-      }
-    }, 30000);
   </script>
 </body>
 </html>

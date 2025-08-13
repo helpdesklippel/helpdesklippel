@@ -32,7 +32,7 @@
                     return;
                 }
                 
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', async function() {
                     // Criar elemento para mostrar usuário logado
                     const userInfo = document.createElement('div');
                     userInfo.style.cssText = `
@@ -54,24 +54,42 @@
                     form.parentNode.insertBefore(userInfo, form);
                     
                     // Buscar dados do usuário
-                    supabaseClient
+                    const { data: usuario, error } = await supabaseClient
                         .from('usuarios')
                         .select('setor_id, eh_admin, setores(nome)')
                         .eq('id', user.id)
-                        .single()
-                        .then(({ data: usuario, error }) => {
-                            if (!error && usuario) {
-                                userInfo.innerHTML += `<br><small>Setor: ${usuario.setores?.nome || 'Não definido'}</small>`;
-                                
-                                // Pré-selecionar o setor do usuário
-                                if (usuario.setor_id) {
-                                    const setorSelect = document.getElementById('setor');
-                                    if (setorSelect) {
-                                        setorSelect.value = usuario.setor_id;
+                        .single();
+                        
+                    if (!error && usuario) {
+                        userInfo.innerHTML += `<br><small>Setor: ${usuario.setores?.nome || 'Não definido'}</small>`;
+                        
+                        // Pré-selecionar o setor do usuário
+                        if (usuario.setor_id) {
+                            const setorSelect = document.getElementById('setor');
+                            const setorIdHidden = document.getElementById('setor_id_hidden');
+                            if (setorSelect) {
+                                setorSelect.value = usuario.setor_id;
+                                // Preencher o campo hidden com o setor_id
+                                if (setorIdHidden) {
+                                    setorIdHidden.value = usuario.setor_id;
+                                    console.log('Campo hidden preenchido com setor_id:', usuario.setor_id);
+                                }
+                                // Desabilitar o campo se não for admin
+                                if (!usuario.eh_admin) {
+                                    setorSelect.disabled = true;
+                                    // Adicionar uma mensagem indicando que o setor é fixo
+                                    const setorLabel = document.querySelector('label[for="setor"]') || 
+                                                    Array.from(document.querySelectorAll('p')).find(p => p.textContent.includes('Setor'));
+                                    if (setorLabel) {
+                                        const info = document.createElement('small');
+                                        info.textContent = ' (Seu setor é fixo)';
+                                        info.style.color = '#aaa';
+                                        setorLabel.appendChild(info);
                                     }
                                 }
                             }
-                        });
+                        }
+                    }
                 });
                 
                 console.log('Usuário autenticado:', user.email);
@@ -107,8 +125,9 @@
                 <p>*Digite seu nome</p>
                 <input type="text" id="txtname" placeholder="Digite seu nome" required>
 
+                <p>*Qual seu Setor?</p>
                 <select id="setor" required > 
-                    <option value="" disabled selected>Qual seu Setor?</option>
+                    <option value="" disabled selected>Selecione seu setor</option>
                     <option value="1">PCP</option>
                     <option value="2">ENGENHARIA</option>
                     <option value="3">COMERCIAL</option>
@@ -117,12 +136,15 @@
                     <option value="6">PROCESSOS</option>
                     <option value="7">TI</option>
                 </select>
+                <!-- Campo hidden para armazenar o setor_id -->
+                <input type="hidden" id="setor_id_hidden" name="setor_id" value="">
 
                 <p>*Descreva o Problema</p>
                 <textarea id="problema" placeholder="Descreva o Problema" required></textarea>
 
+                <p>*Tipo de Solicitação</p>
                 <select id="área" required>
-                    <option value="" disabled selected>Tipo de Solicitação</option>
+                    <option value="" disabled selected>Selecione o tipo</option>
                     <option value="SUPORTE TÉCNICO">SUPORTE TÉCNICO</option>
                     <option value="DESENVOLVIMENTO">DESENVOLVIMENTO</option>
                 </select>
@@ -146,7 +168,7 @@
                 </select>
 
                 <button type="button" onclick="enviarChamado()" class="btn-enviar">Enviar</button>
-                <button onclick="window.location.href='chamados.html'">Ver Chamados em Aberto</button>
+                <button type="button" onclick="window.location.href='chamados.html'">Ver Chamados em Aberto</button>
 
               </form>  
             </div>
