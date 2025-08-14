@@ -66,13 +66,18 @@
     let usuarioAtual = null;
     let dadosUsuario = null;
     
-    // As funções verificarAutenticacao, addDebugInfo, atualizarStatus e logout continuam iguais
-    // ... (código das outras funções aqui) ...
-    function addDebugInfo(message) {
-      console.log(message);
-      document.getElementById('debugContent').innerHTML += `<p>${message}</p>`;
-      document.getElementById('debugPanel').style.display = 'block';
-    }
+      // FUNÇÃO DE DEPURAÇÃO AJUSTADA
+        function addDebugInfo(message) {
+            // Apenas regista na consola do navegador, que é invisível para o usuário final
+            console.log(message);
+            
+            // As linhas que mostravam o painel na tela foram "comentadas"
+            // const debugContent = document.getElementById('debugContent');
+            // if (debugContent) {
+            //     debugContent.innerHTML += `<p>${message}</p>`;
+            //     document.getElementById('debugPanel').style.display = 'block';
+            // }
+        }
     
     async function verificarAutenticacao() {
         try {
