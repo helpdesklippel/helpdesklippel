@@ -91,5 +91,67 @@ p{
 }
 
 
+/* ========================================= */
+/* === ESTILOS DO MODAL DE AVISO DE TESTE === */
+/* ========================================= */
+.modal {
+    display: none; /* Escondido por padrão */
+    position: fixed; /* Fica fixo na tela */
+    z-index: 1000; /* Garante que fica à frente de tudo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+    position: relative;
+    width: 80%;
+    max-width: 500px;
+}
+
+.modal-content h2 {
+    margin-bottom: 15px;
+    color: #0052a3;
+    font-family: 'Exo 2', sans-serif;
+}
+
+/* Alterado seletor 'p' para ser mais específico e não afetar o formulário */
+.modal-content p {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    color: #333; /* Cor do parágrafo dentro do modal */
+    font-family: 'Nunito', sans-serif; /* Fonte do parágrafo */
+}
+
+.close-button {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0}
+    to {opacity: 1}
+}
+
 
 

@@ -20,7 +20,7 @@ async function enviarChamado() {
     }
     
     const problema = document.getElementById('problema').value;
-    const area = document.getElementById('área').value;
+    const area = document.getElementById('area').value;
     const prioridade = document.getElementById('prioridade').value;
     const interferencia = document.getElementById('interferencia').value;
     

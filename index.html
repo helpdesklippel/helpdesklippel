@@ -4,116 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chamados LIPPEL</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@600;700&family=Nunito:wght@400;600&display=stylesheet" rel="stylesheet">
     <link rel="icon" type="image/png" href="img/favicon-32x32.png">
-    <link rel="stylesheet" href="style.css">
     
-    <!-- SCRIPT DE AUTENTICAÇÃO -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-    <script>
-        // SUAS CREDENCIAIS DO SUPABASE
-        const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
-        const { createClient } = window.supabase;
-        const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-        // Tornar disponível globalmente para outros scripts
-        window.supabaseClient = supabaseClient;
-
-        async function verificarAutenticacao() {
-            try {
-                const { data: { user }, error } = await supabaseClient.auth.getUser();
-                
-                if (error || !user) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-                
-                document.addEventListener('DOMContentLoaded', async function() {
-                    // Criar elemento para mostrar usuário logado
-                    const userInfo = document.createElement('div');
-                    userInfo.style.cssText = `
-                        background-color: #e3f2fd;
-                        padding: 10px;
-                        border-radius: 5px;
-                        margin-bottom: 20px;
-                        text-align: center;
-                        color: #0052a3;
-                        font-family: 'Exo 2', sans-serif;
-                        font-weight: 600;
-                    `;
-                    userInfo.innerHTML = `
-                        Bem-vindo, <strong>${user.email}</strong> 
-                        | <a href="#" onclick="logout()" style="color: #d32f2f; text-decoration: none;">Sair</a>
-                    `;
-                    
-                    const form = document.getElementById('formulario');
-                    form.parentNode.insertBefore(userInfo, form);
-                    
-                    // Buscar dados do usuário
-                    const { data: usuario, error } = await supabaseClient
-                        .from('usuarios')
-                        .select('setor_id, eh_admin, setores(nome)')
-                        .eq('id', user.id)
-                        .single();
-                        
-                    if (!error && usuario) {
-                        userInfo.innerHTML += `<br><small>Setor: ${usuario.setores?.nome || 'Não definido'}</small>`;
-                        
-                        // Pré-selecionar o setor do usuário
-                        if (usuario.setor_id) {
-                            const setorSelect = document.getElementById('setor');
-                            const setorIdHidden = document.getElementById('setor_id_hidden');
-                            if (setorSelect) {
-                                setorSelect.value = usuario.setor_id;
-                                // Preencher o campo hidden com o setor_id
-                                if (setorIdHidden) {
-                                    setorIdHidden.value = usuario.setor_id;
-                                    console.log('Campo hidden preenchido com setor_id:', usuario.setor_id);
-                                }
-                                // Desabilitar o campo se não for admin
-                                if (!usuario.eh_admin) {
-                                    setorSelect.disabled = true;
-                                    // Adicionar uma mensagem indicando que o setor é fixo
-                                    const setorLabel = document.querySelector('label[for="setor"]') || 
-                                                    Array.from(document.querySelectorAll('p')).find(p => p.textContent.includes('Setor'));
-                                    if (setorLabel) {
-                                        const info = document.createElement('small');
-                                        info.textContent = ' (Seu setor é fixo)';
-                                        info.style.color = '#aaa';
-                                        setorLabel.appendChild(info);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                console.log('Usuário autenticado:', user.email);
-            } catch (error) {
-                console.error('Erro na verificação de autenticação:', error);
-                window.location.href = 'login.html';
-            }
-        }
-
-        async function logout() {
-            try {
-                await supabaseClient.auth.signOut();
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error('Erro ao fazer logout:', error);
-                window.location.href = 'login.html';
-            }
-        }
-
-        // Iniciar verificação de autenticação
-        verificarAutenticacao();
-    </script>
+    <style>
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fff; margin: 15% auto; padding: 30px; border-radius: 10px; width: 80%; max-width: 500px; text-align: center; position: relative; }
+        .modal-content h2 { color: #0052a3; font-family: 'Exo 2', sans-serif; }
+        .modal-content p { color: #333; font-family: 'Nunito', sans-serif; }
+        .close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+    </style>
 </head>
 <body>
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModalButton" class="close-button">&times;</span>
+            <h2>Bem-vindo ao Sistema de Chamados!</h2>
+            <p>Esta é uma versão de testes da nossa nova plataforma.</p>
+            <p>Caso encontre qualquer erro, comunique à equipe de desenvolvimento.</p>
+        </div>
+    </div>
+
     <header>
        <img id="imagem-lpp" src="img/lippel-removebg-preview.png" alt="imagem-lippel">
     </header>
@@ -124,9 +38,8 @@
               <form id="formulario">
                 <p>*Digite seu nome</p>
                 <input type="text" id="txtname" placeholder="Digite seu nome" required>
-
                 <p>*Qual seu Setor?</p>
-                <select id="setor" required > 
+                <select id="setor" required> 
                     <option value="" disabled selected>Selecione seu setor</option>
                     <option value="1">PCP</option>
                     <option value="2">ENGENHARIA</option>
@@ -136,46 +49,71 @@
                     <option value="6">PROCESSOS</option>
                     <option value="7">TI</option>
                 </select>
-                <!-- Campo hidden para armazenar o setor_id -->
-                <input type="hidden" id="setor_id_hidden" name="setor_id" value="">
-
                 <p>*Descreva o Problema</p>
                 <textarea id="problema" placeholder="Descreva o Problema" required></textarea>
-
                 <p>*Tipo de Solicitação</p>
-                <select id="área" required>
-                    <option value="" disabled selected>Selecione o tipo</option>
+                <select id="area" required> <option value="" disabled selected>Selecione o tipo</option>
                     <option value="SUPORTE TÉCNICO">SUPORTE TÉCNICO</option>
                     <option value="DESENVOLVIMENTO">DESENVOLVIMENTO</option>
                 </select>
-
                 <p>*Prioridade</p>
                 <select id="prioridade" required>
-                    <option value="" disabled selected>Selecione a prioridade</option>
+                    <option value="" disabled selected>Selecione</option>
                     <option value="baixa">Baixa</option>
                     <option value="média">Média</option>
                     <option value="alta">Alta</option>
                     <option value="crítica">Crítica</option>
                 </select>
-
                 <p>*Nível de Interferência</p>
                 <select id="interferencia" required>
-                    <option value="" disabled selected>Selecione o nível de interferência</option>
+                    <option value="" disabled selected>Selecione</option>
                     <option value="nenhuma">Nenhuma</option>
-                    <option value="leve">Interferência leve (trabalho continua)</option>
-                    <option value="média">Interferência média (tarefas parcialmente interrompidas)</option>
-                    <option value="grave">Interferência grave (trabalho interrompido)</option>
+                    <option value="leve">Leve</option>
+                    <option value="média">Média</option>
+                    <option value="grave">Grave</option>
                 </select>
-
-                <button type="button" onclick="enviarChamado()" class="btn-enviar">Enviar</button>
+                <button type="button" onclick="enviarChamado()" class="btn-enviar" id="btn-submit">Enviar</button>
                 <button type="button" onclick="window.location.href='chamados.html'">Ver Chamados em Aberto</button>
-
               </form>  
             </div>
         </section>
     </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        const supabaseUrl = 'https://izkkozkulgjpejyvcmiw.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a2tvemt1bGdqcGVqeXZjbWl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0ODcwNzYsImV4cCI6MjA3MDA2MzA3Nn0.oyLHuA3n3ZlMuHWaMF4OEbSWMmhIYzeIE7LuFJFY7MA';
+        const { createClient } = window.supabase;
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+        window.supabaseClient = supabaseClient;
 
-    <!-- Carregar o script.js no final do body -->
+        // Script de autenticação que evita loops
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (!session) {
+                window.location.href = 'login.html';
+            } else {
+                showWelcomeModal();
+            }
+        });
+
+        // Função para mostrar a janela de aviso
+        function showWelcomeModal() {
+            if (!sessionStorage.getItem('welcomeModalShown')) {
+                const modal = document.getElementById('welcomeModal');
+                const closeButton = document.getElementById('closeModalButton');
+                if (modal && closeButton) {
+                    modal.style.display = 'block';
+                    sessionStorage.setItem('welcomeModalShown', 'true');
+                    closeButton.onclick = () => { modal.style.display = 'none'; };
+                    window.onclick = (event) => {
+                        if (event.target == modal) {
+                            modal.style.display = 'none';
+                        }
+                    };
+                }
+            }
+        }
+    </script>
     <script src="script.js"></script>
 </body> 
 </html>
