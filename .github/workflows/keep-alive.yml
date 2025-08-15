@@ -1,0 +1,13 @@
+name: Manter Servidor Ativo
+
+on:
+  schedule:
+    # CORRIGIDO: Executa a cada 14 minutos para garantir que o servidor não durma
+    - cron: '*/14 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar requisição para o servidor
+        run: curl -sS https://helpdesklippel-1.onrender.com/api/ping > /dev/null
