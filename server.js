@@ -36,7 +36,7 @@ app.get('/api/chamados', async (req, res) => {
     const supabase = createSupabaseClientForUser(req);
     const { data: chamados, error } = await supabase
         .from('Chamados')
-        .select('*, setores(nome), status_chamado(nome)')
+        .select('*, setores(nome), status_chamado(nome), usuarios(nome)') // Adicionado usuarios(nome)
         .order('created_at', { ascending: false });
     if (error) throw error;
     res.json(chamados);
@@ -61,7 +61,6 @@ app.post('/api/chamados', async (req, res) => {
 // Rota PATCH para atualizar status
 app.patch('/api/chamados/:id', async (req, res) => {
   try {
-    // Passo 1: Verificar se o requisitante é um admin usando o seu token de usuário
     const supabaseUserClient = createSupabaseClientForUser(req);
     const { data: { user } } = await supabaseUserClient.auth.getUser();
     if (!user) return res.status(401).json({ error: 'Usuário não autenticado.' });
@@ -71,7 +70,6 @@ app.patch('/api/chamados/:id', async (req, res) => {
         return res.status(403).json({ error: 'Ação não permitida. Requer privilégios de administrador.' });
     }
     
-    // Passo 2: Se for admin, usar o cliente com privilégios de serviço para fazer a alteração
     const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SERVICE_ROLE_KEY);
     const { id } = req.params;
     const { status_id } = req.body;
@@ -83,6 +81,18 @@ app.patch('/api/chamados/:id', async (req, res) => {
     res.status(500).json({ error: 'Erro interno no servidor ao atualizar status', details: err.message });
   }
 });
+
+// ==========================================================
+// ROTA "KEEP-ALIVE" ADICIONADA
+// ==========================================================
+// Esta rota serve para ser chamada por um serviço externo (como o UptimeRobot)
+// para impedir que o servidor do Render entre em modo de espera.
+app.get('/api/ping', (req, res) => {
+  console.log('Ping recebido! O servidor está acordado.');
+  res.status(200).json({ message: 'pong' });
+});
+// ==========================================================
+
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
