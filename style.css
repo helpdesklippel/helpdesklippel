@@ -1,7 +1,7 @@
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 header{
@@ -11,49 +11,49 @@ header{
 }
 
 #imagem-lpp{
-  width: 300px;
-  padding: 30px;
+    width: 300px;
+    padding: 30px;
 }
 
 body{
-  margin: 0;
-  background-color: #f0f0f0;
+    margin: 0;
+    background-color: #f0f0f0;
 }
 
 main{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(60vh - 80px); /* ajusta altura tirando o header */
-  padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(60vh - 80px); /* ajusta altura tirando o header */
+    padding-top: 20px;
 }
 
 
 .container{
     background-color: #0052a3;
-  padding: 50px 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 480px;
+    padding: 50px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 480px;
 }
 
 form{
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
 }
 
 #texto1{
-  margin-bottom: 30px;
-  font-family: 'Exo 2', sans-serif;
-  font-size: 28px;
-  color: #f0f0f0;
+    margin-bottom: 30px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 28px;
+    color: #f0f0f0;
 
 }
 
 input, select, textarea {
-  width: 100%;
+    width: 100%;
     padding: 15px;
     border: 2px solid #003d7a;
     border-radius: 8px;
@@ -66,7 +66,6 @@ input, select, textarea {
 }
 
 button{
-  
     background-color: #0066cc;
     color: white;
     border: none;
@@ -85,15 +84,12 @@ button{
 }
 
 p{
-  color: #f0f0f0;
-  font-family: 'Exo 2', sans-serif;
-  
+    color: #f0f0f0;
+    font-family: 'Exo 2', sans-serif;
+    
 }
 
-
-/* ========================================= */
-/* === ESTILOS DO MODAL DE AVISO DE TESTE === */
-/* ========================================= */
+/* ESTILOS DO MODAL DE AVISO DE TESTE */
 .modal {
     display: none; /* Escondido por padrão */
     position: fixed; /* Fica fixo na tela */
@@ -105,53 +101,41 @@ p{
     background-color: rgba(0, 0, 0, 0.6);
     animation: fadeIn 0.3s;
 }
+/* ... (resto dos estilos do modal que você já tem) ... */
+.modal-content { background-color: #fff; margin: 15% auto; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center; position: relative; width: 80%; max-width: 500px; }
+.modal-content h2 { margin-bottom: 15px; color: #0052a3; font-family: 'Exo 2', sans-serif; }
+.modal-content p { margin-bottom: 10px; line-height: 1.6; color: #333; font-family: 'Nunito', sans-serif; }
+.close-button { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; }
+.close-button:hover, .close-button:focus { color: black; text-decoration: none; }
+@keyframes fadeIn { from {opacity: 0} to {opacity: 1} }
 
-.modal-content {
-    background-color: #fff;
-    margin: 15% auto;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    text-align: center;
-    position: relative;
-    width: 80%;
-    max-width: 500px;
+
+/* =================================================================== */
+/* === CÓDIGO ADICIONADO PARA MELHORAR A TELA DE CHAMADOS EM TELEMÓVEIS === */
+/* =================================================================== */
+
+/* Regras que só se aplicam em telas com largura máxima de 768px */
+@media (max-width: 768px) {
+    /* Seleciona o cabeçalho de cada cartão de chamado */
+    .chamado > div:first-child {
+        flex-direction: column; /* Empilha o nome e a data */
+        align-items: flex-start; /* Alinha tudo à esquerda */
+        gap: 5px; /* Adiciona um pequeno espaço entre a data e o nome */
+    }
+
+    /* Aumenta um pouco o tamanho do texto dentro do chamado para melhor legibilidade */
+    .chamado p, .chamado strong, .chamado small {
+        font-size: 15px;
+    }
+
+    /* Ajusta os controlos de admin para ficarem um em baixo do outro */
+    .chamado div > .status-select,
+    .chamado div > .btn-atualizar {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 5px;
+        text-align: center;
+    }
 }
-
-.modal-content h2 {
-    margin-bottom: 15px;
-    color: #0052a3;
-    font-family: 'Exo 2', sans-serif;
-}
-
-/* Alterado seletor 'p' para ser mais específico e não afetar o formulário */
-.modal-content p {
-    margin-bottom: 10px;
-    line-height: 1.6;
-    color: #333; /* Cor do parágrafo dentro do modal */
-    font-family: 'Nunito', sans-serif; /* Fonte do parágrafo */
-}
-
-.close-button {
-    color: #aaa;
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover,
-.close-button:focus {
-    color: black;
-    text-decoration: none;
-}
-
-@keyframes fadeIn {
-    from {opacity: 0}
-    to {opacity: 1}
-}
-
 
 
